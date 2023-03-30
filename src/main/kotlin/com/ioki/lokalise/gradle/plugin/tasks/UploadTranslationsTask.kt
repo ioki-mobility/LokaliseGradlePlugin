@@ -1,26 +1,31 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
+import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileTree
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 internal abstract class UploadTranslationsTask : DefaultTask() {
 
-    @Input
-    lateinit var projectId: Provider<String>
+    @get:Input
+    abstract val projectId: Property<String>
 
-    @Input
-    lateinit var apiToken: Provider<String>
+    @get:Input
+    abstract val apiToken: Property<String>
 
-    @Input
-    lateinit var translationFilesToUpload: Provider<ConfigurableFileTree>
+    @get:Input
+    abstract val translationFilesToUpload: Property<ConfigurableFileTree>
 
-    @Input
-    lateinit var lokaliseCliOutputDir: Provider<File>
+    @get:Input
+    abstract val lokaliseCliOutputDir: Property<File>
 
     @TaskAction
     fun f() {
@@ -51,4 +56,14 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
             )
         }
     }
+}
+
+internal fun TaskContainer.registerUploadTranslationTask(
+    lokaliseExtensions: LokaliseExtension,
+    unzipLokaliseTask: Provider<UnzipLokaliseCliTask>
+): TaskProvider<UploadTranslationsTask> = register("uploadTranslations", UploadTranslationsTask::class.java) {
+    it.apiToken.set(lokaliseExtensions.apiToken)
+    it.projectId.set(lokaliseExtensions.projectId)
+    it.lokaliseCliOutputDir.set(unzipLokaliseTask.map { task -> task.destinationDir })
+    it.translationFilesToUpload.set(lokaliseExtensions.translationsFilesToUpload)
 }

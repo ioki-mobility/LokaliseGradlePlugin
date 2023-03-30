@@ -2,21 +2,21 @@ package com.ioki.lokalise.gradle.plugin.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.provider.Provider
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 internal abstract class DownloadTranslationsTask : DefaultTask() {
 
-    @Input
-    lateinit var projectId: Provider<String>
+    @get:Input
+    abstract val projectId: Property<String>
 
-    @Input
-    lateinit var apiToken: Provider<String>
+    @get:Input
+    abstract val apiToken: Property<String>
 
-    @Input
-    lateinit var lokaliseOutputDir: Provider<File>
+    @get:Input
+    abstract val lokaliseOutputDir: Property<File>
 
     @TaskAction
     fun f() {

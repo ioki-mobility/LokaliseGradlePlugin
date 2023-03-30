@@ -1,10 +1,14 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
+import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 internal abstract class DownloadTranslationsTask : DefaultTask() {
@@ -48,4 +52,13 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
             )
         }
     }
+}
+
+internal fun TaskContainer.registerDownloadTranslationTask(
+    lokaliseExtensions: LokaliseExtension,
+    unzipLokaliseTask: Provider<UnzipLokaliseCliTask>
+): TaskProvider<DownloadTranslationsTask> = register("downloadTranslations", DownloadTranslationsTask::class.java) {
+    it.apiToken.set(lokaliseExtensions.apiToken)
+    it.projectId.set(lokaliseExtensions.projectId)
+    it.lokaliseOutputDir.set(unzipLokaliseTask.map { task -> task.destinationDir })
 }

@@ -19,7 +19,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-caches-v0-${{ hashFiles('build.gradle.kts', 'settings.gradle', 'gradle/wrapper/gradle-wrapper.properties') }}
+          key: gradle-caches-v0-${{ hashFiles('build.gradle.kts', 'settings.gradle.kts', 'gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Run tests
         run: ./gradlew test

@@ -37,7 +37,7 @@ class DownloadLokaliseCliTaskTest {
             .withArguments("downloadLokaliseCli")
             .build()
 
-        assert(result.task(":downloadLokaliseCli")?.outcome == TaskOutcome.SUCCESS)
+        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 
     @Test

@@ -6,6 +6,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import strikt.api.expectThat
+import strikt.assertions.isEqualTo
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.readText
@@ -73,7 +75,7 @@ class LokaliseGradlePluginPublishingTest {
             .withArguments(listOf("downloadLokaliseCli"))
             .build()
 
-        assert(result.task(":downloadLokaliseCli")?.outcome == TaskOutcome.SUCCESS)
+        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 
     @Test
@@ -84,7 +86,7 @@ class LokaliseGradlePluginPublishingTest {
                         " via environment variable 'IOKI_LOKALISE_PLUGIN_TEST_VERSION'"
             )
         val isSemverVersion = Regex("[0-9]+\\.[0-9]+\\.[0-9]+").matches(testVersion)
-        if(!isSemverVersion) {
+        if (!isSemverVersion) {
             testVersion += "-SNAPSHOT"
         }
         val newBuildFile = buildGradle.readText().replace(
@@ -116,7 +118,7 @@ class LokaliseGradlePluginPublishingTest {
             .withArguments(listOf("downloadLokaliseCli"))
             .build()
 
-        assert(result.task(":downloadLokaliseCli")?.outcome == TaskOutcome.SUCCESS)
+        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 
 }

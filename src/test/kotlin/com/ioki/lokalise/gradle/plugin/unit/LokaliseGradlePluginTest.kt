@@ -1,4 +1,4 @@
-package com.ioki.lokalise.gradle.plugin
+package com.ioki.lokalise.gradle.plugin.unit
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -11,15 +11,13 @@ import strikt.assertions.isEqualTo
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.writeText
-import kotlin.test.assertContains
-import kotlin.test.assertTrue
 
 class LokaliseGradlePluginTest {
     @TempDir
     lateinit var tempDir: Path
 
     @BeforeEach
-    fun moveTestProjectToTestTmpDir() {
+    fun `setup lokalise test project dir`() {
         Paths.get(tempDir.toString(), "settings.gradle")
         val buildGradle = Paths.get(tempDir.toString(), "build.gradle.kts")
 

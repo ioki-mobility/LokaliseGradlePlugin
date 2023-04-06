@@ -1,4 +1,4 @@
-package com.ioki.lokalise.gradle.plugin
+package com.ioki.lokalise.gradle.plugin.unit
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -18,7 +18,7 @@ class DownloadLokaliseCliTaskTest {
     lateinit var tempDir: Path
 
     @BeforeEach
-    fun moveTestProjectToTestTmpDir() {
+    fun `setup lokalise test project dir`() {
         Paths.get(tempDir.toString(), "settings.gradle")
         val buildGradle = Paths.get(tempDir.toString(), "build.gradle.kts")
 
@@ -37,7 +37,7 @@ class DownloadLokaliseCliTaskTest {
             .withArguments("downloadLokaliseCli")
             .build()
 
-        assert(result.task(":downloadLokaliseCli")?.outcome == TaskOutcome.SUCCESS)
+        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 
     @Test

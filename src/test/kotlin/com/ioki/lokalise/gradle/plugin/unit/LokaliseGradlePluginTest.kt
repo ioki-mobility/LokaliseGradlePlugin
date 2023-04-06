@@ -1,4 +1,4 @@
-package com.ioki.lokalise.gradle.plugin
+package com.ioki.lokalise.gradle.plugin.unit
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
@@ -11,8 +11,6 @@ import strikt.assertions.isEqualTo
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.writeText
-import kotlin.test.assertContains
-import kotlin.test.assertTrue
 
 class LokaliseGradlePluginTest {
     @TempDir

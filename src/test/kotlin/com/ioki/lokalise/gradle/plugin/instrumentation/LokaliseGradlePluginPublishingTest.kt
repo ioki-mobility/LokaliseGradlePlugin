@@ -1,4 +1,4 @@
-package com.ioki.lokalise.gradle.plugin
+package com.ioki.lokalise.gradle.plugin.instrumentation
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner

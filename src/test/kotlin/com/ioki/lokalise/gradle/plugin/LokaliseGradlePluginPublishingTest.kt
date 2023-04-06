@@ -78,11 +78,15 @@ class LokaliseGradlePluginPublishingTest {
 
     @Test
     fun `consuming of plugin publication via jitpack works`() {
-        val testVersion = System.getenv("IOKI_LOKALISE_PLUGIN_TEST_VERSION")
+        var testVersion = System.getenv("IOKI_LOKALISE_PLUGIN_TEST_VERSION")
             ?: fail(
                 "Please provide plugin version from jitpack" +
                         " via environment variable 'IOKI_LOKALISE_PLUGIN_TEST_VERSION'"
             )
+        val isSemverVersion = Regex("[0-9]+\\.[0-9]+\\.[0-9]+").matches(testVersion)
+        if(!isSemverVersion) {
+            testVersion += "-SNAPSHOT"
+        }
         val newBuildFile = buildGradle.readText().replace(
             oldValue = """id("com.ioki.lokalise")""",
             newValue = """id("com.ioki.lokalise") version "$testVersion""""

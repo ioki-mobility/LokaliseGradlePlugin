@@ -6,9 +6,6 @@ plugins {
     `maven-publish`
 }
 
-group = "com.ioki"
-version = "1.0-SNAPSHOT"
-
 repositories {
     mavenCentral()
 }

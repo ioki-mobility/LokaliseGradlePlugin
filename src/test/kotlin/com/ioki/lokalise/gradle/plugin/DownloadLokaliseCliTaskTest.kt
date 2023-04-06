@@ -18,7 +18,7 @@ class DownloadLokaliseCliTaskTest {
     lateinit var tempDir: Path
 
     @BeforeEach
-    fun moveTestProjectToTestTmpDir() {
+    fun `setup lokalise test project dir`() {
         Paths.get(tempDir.toString(), "settings.gradle")
         val buildGradle = Paths.get(tempDir.toString(), "build.gradle.kts")
 

@@ -3,4 +3,4 @@ test-kotlinTest = "org.jetbrains.kotlin:kotlin-test:1.7.21"
 test-strikt = "io.strikt:strikt-core:0.34.1"
 
 [plugins]
-kotlin = "org.jetbrains.kotlin.jvm:1.7.21"
+kotlin = "org.jetbrains.kotlin.jvm:1.8.20"

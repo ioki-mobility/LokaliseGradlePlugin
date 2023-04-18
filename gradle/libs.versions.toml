@@ -1,5 +1,5 @@
 [libraries]
-test-kotlinTest = "org.jetbrains.kotlin:kotlin-test:1.7.21"
+test-kotlinTest = "org.jetbrains.kotlin:kotlin-test:1.8.20"
 test-strikt = "io.strikt:strikt-core:0.34.1"
 
 [plugins]

@@ -10,6 +10,8 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isTrue
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
@@ -66,5 +68,19 @@ class DownloadLokaliseCliTaskTest {
         val result2 = runner.build()
 
         expectThat(result2.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.UP_TO_DATE)
+    }
+
+    @Test
+    fun `do not throw if downloaded file already exist`() {
+        tempDir.resolve("build/lokalise").createDirectories()
+            .resolve("lokalise_cli.tar.gz").createFile()
+
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("downloadLokaliseCli")
+            .build()
+
+        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 }

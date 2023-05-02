@@ -12,7 +12,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.writeText
 
-class LokaliseGradlePluginTest {
+class DownloadStringsConfigsTest {
+
     @TempDir
     lateinit var tempDir: Path
 
@@ -26,15 +27,10 @@ class LokaliseGradlePluginTest {
             plugins {
                 id("com.ioki.lokalise")
             }
-            val filesToUpload = provider {
-                fileTree(rootDir) {
-                    include("build.gradle.kts")
-                }
-            }
+            
             lokalise {
                 apiToken.set("AWESOM3-AP1-T0KEN")
                 projectId.set("AW3S0ME-PR0J3C7-1D")
-                translationsFilesToUpload.set(filesToUpload)
                 downloadStringsConfigs {
                     register("library") {
                         arguments = listOf(
@@ -55,6 +51,25 @@ class LokaliseGradlePluginTest {
                             "--replace-breaks=false"
                         )   
                     }
+                    register("flavor") {
+                        arguments = listOf(
+                            "--format",
+                            "xml",
+                            "--filter-langs",
+                            "en,de,de_CH,fr_CH,es,it,nl,ca,ar",
+                            "--export-empty-as",
+                            "skip",
+                            "--include-description=false",
+                            "--export-sort",
+                            "first_added",
+                            "--directory-prefix=.",
+                            "--filter-filenames", 
+                            "./src/${"$"}{findProperty("flavor")}/res/values-%LANG_ISO%/strings.xml",
+                            "--indentation",
+                            "4sp",
+                            "--replace-breaks=false"
+                        )   
+                    }
                 }
             }
         """.trimIndent()
@@ -62,48 +77,24 @@ class LokaliseGradlePluginTest {
     }
 
     @Test
-    fun `running downloadTranslations task has successful outcome of downloadLokalise`() {
+    fun `running downloadTranslationsForFlavor task has successful outcome of downloadLokaliseCli`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("downloadTranslationsForLibrary")
+            .withArguments("downloadTranslationsForFlavor", "-Pflavor=hamburg", "--info")
             .buildAndFail()
 
         expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 
     @Test
-    fun `running downloadTranslationsForLibrary task has been called but failed because of wrong token`() {
+    fun `running downloadTranslationsForFlavor task should set filter filenames correctly`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("downloadTranslationsForLibrary")
+            .withArguments("downloadTranslationsForFlavor", "-Pflavor=hamburg", "--info")
             .buildAndFail()
 
-        expectThat(result.task(":downloadTranslationsForLibrary")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
-    }
-
-    @Test
-    fun `running uploadingTranslations task has successful outcome of downloadLokalise`() {
-        val result = GradleRunner.create()
-            .withProjectDir(tempDir.toFile())
-            .withPluginClasspath()
-            .withArguments("uploadTranslations")
-            .buildAndFail()
-
-        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-    }
-
-    @Test
-    fun `running uploadTranslations task has been called but failed because of wrong token`() {
-        val result = GradleRunner.create()
-            .withProjectDir(tempDir.toFile())
-            .withPluginClasspath()
-            .withArguments("uploadTranslations")
-            .buildAndFail()
-
-        expectThat(result.task(":uploadTranslations")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+        expectThat(result.output).contains("./src/hamburg/res/values-%LANG_ISO%/strings.xml")
     }
 }

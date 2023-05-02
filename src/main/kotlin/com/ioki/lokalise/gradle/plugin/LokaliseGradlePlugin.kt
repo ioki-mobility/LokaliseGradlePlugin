@@ -6,6 +6,7 @@ import com.ioki.lokalise.gradle.plugin.tasks.registerUnzipLokaliseCliTask
 import com.ioki.lokalise.gradle.plugin.tasks.registerUploadTranslationTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import java.util.*
 
 class LokaliseGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -15,14 +16,17 @@ class LokaliseGradlePlugin : Plugin<Project> {
         val unzipLokaliseTask = target.tasks.registerUnzipLokaliseCliTask(
             downloadLokaliseCliTask = downloadLokaliseTask
         )
-        target.tasks.registerDownloadTranslationTask(
-            lokaliseExtensions = lokaliseExtensions,
-            unzipLokaliseTask = unzipLokaliseTask
-        )
         target.tasks.registerUploadTranslationTask(
             lokaliseExtensions = lokaliseExtensions,
             unzipLokaliseTask = unzipLokaliseTask
         )
+        lokaliseExtensions.downloadStringsConfigs.all {
+            target.tasks.registerDownloadTranslationTask(
+                config = it,
+                lokaliseExtensions = lokaliseExtensions,
+                unzipLokaliseTask = unzipLokaliseTask
+            )
+        }
     }
 }
 

@@ -6,7 +6,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File
 import java.net.URL
+import java.nio.file.CopyOption
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.*
 
 internal abstract class DownloadLokaliseCliTask : DefaultTask() {
@@ -19,7 +21,7 @@ internal abstract class DownloadLokaliseCliTask : DefaultTask() {
     @TaskAction
     fun f() {
         URL(lokaliseCliUrl.get()).openStream().use {
-            Files.copy(it, lokaliseCliZipFile.get().asFile.toPath())
+            Files.copy(it, lokaliseCliZipFile.get().asFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
     }
 }

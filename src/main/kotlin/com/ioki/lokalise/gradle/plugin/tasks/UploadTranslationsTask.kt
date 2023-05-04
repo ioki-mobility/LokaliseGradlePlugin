@@ -4,7 +4,6 @@ import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileTree
-import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -33,7 +32,7 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
             throw GradleException("Please set 'lokalise.projectId' and 'lokalise.apiToken'")
 
         val fileTree = translationFilesToUpload.get()
-        val stringFilesAsString = fileTree.toList().joinToString {
+        val stringFilesAsString = fileTree.toList().joinToString(separator = ",") {
             it.path.replace(fileTree.dir.absolutePath, ".")
         }
         project.exec {

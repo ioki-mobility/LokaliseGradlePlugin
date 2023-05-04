@@ -10,6 +10,7 @@ import strikt.assertions.contains
 import strikt.assertions.isEqualTo
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.createFile
 import kotlin.io.path.writeText
 
 class LokaliseGradlePluginTest {
@@ -18,7 +19,7 @@ class LokaliseGradlePluginTest {
 
     @BeforeEach
     fun `setup lokalise test project dir`() {
-        Paths.get(tempDir.toString(), "settings.gradle")
+        Paths.get(tempDir.toString(), "settings.gradle").createFile()
         val buildGradle = Paths.get(tempDir.toString(), "build.gradle.kts")
 
         buildGradle.writeText(
@@ -28,7 +29,7 @@ class LokaliseGradlePluginTest {
             }
             val filesToUpload = provider {
                 fileTree(rootDir) {
-                    include("build.gradle.kts")
+                    include("**gradle**")
                 }
             }
             lokalise {
@@ -104,6 +105,18 @@ class LokaliseGradlePluginTest {
             .buildAndFail()
 
         expectThat(result.task(":uploadTranslations")?.outcome).isEqualTo(TaskOutcome.FAILED)
+        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+    }
+
+    @Test
+    fun `running uploadTranslations task contains defined files to upload but failed because of wrong token`() {
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("uploadTranslations", "--info")
+            .buildAndFail()
+
+        expectThat(result.output).contains("./build.gradle.kts,./settings.gradle")
         expectThat(result.output).contains("400 Invalid `X-Api-Token`")
     }
 }

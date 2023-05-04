@@ -29,7 +29,8 @@ class LokaliseGradlePluginTest {
             }
             val filesToUpload = provider {
                 fileTree(rootDir) {
-                    include("**gradle**")
+                    include("build.gradle.kts")
+                    include("settings.gradle")
                 }
             }
             lokalise {
@@ -116,7 +117,12 @@ class LokaliseGradlePluginTest {
             .withArguments("uploadTranslations", "--info")
             .buildAndFail()
 
-        expectThat(result.output).contains("./build.gradle.kts,./settings.gradle")
+        val expectBuildAndSettingOrSettingAndBuild = Regex(
+            "\\./build\\.gradle\\.kts,\\./settings\\.gradle" +
+                    "|" +
+                    "\\./settings\\.gradle,\\./build\\.gradle\\.kts"
+        )
+        expectThat(result.output).contains(expectBuildAndSettingOrSettingAndBuild)
         expectThat(result.output).contains("400 Invalid `X-Api-Token`")
     }
 }

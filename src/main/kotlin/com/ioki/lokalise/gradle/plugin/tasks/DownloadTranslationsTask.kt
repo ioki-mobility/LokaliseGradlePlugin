@@ -4,6 +4,7 @@ import com.ioki.lokalise.gradle.plugin.DownloadStringsConfig
 import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -12,7 +13,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
-import java.io.File
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
 internal abstract class DownloadTranslationsTask : DefaultTask() {
 
@@ -23,10 +25,13 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
     abstract val apiToken: Property<String>
 
     @get:Input
-    abstract val lokaliseOutputDir: Property<File>
+    abstract val lokaliseCliFile: RegularFileProperty
 
     @get:Input
     abstract val arguments: ListProperty<String>
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
 
     @TaskAction
     fun f() {
@@ -34,7 +39,7 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
             throw GradleException("Please set 'lokalise.projectId' and 'lokalise.apiToken'")
 
         val command = listOf(
-            "${lokaliseOutputDir.get()}/lokalise",
+            lokaliseCliFile.get(),
             "file",
             "download",
             "--token",
@@ -44,7 +49,7 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
             *arguments.get().toTypedArray()
         )
         logger.log(LogLevel.INFO, "Execute the following command:\n$command")
-        project.exec {
+        execOperations.exec {
             it.commandLine(command)
         }
     }
@@ -53,13 +58,13 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
 internal fun TaskContainer.registerDownloadTranslationTask(
     config: DownloadStringsConfig,
     lokaliseExtensions: LokaliseExtension,
-    unzipLokaliseTask: Provider<UnzipLokaliseCliTask>
+    lokaliseCliFile: Provider<RegularFileProperty>,
 ): TaskProvider<DownloadTranslationsTask> = register(
     "downloadTranslationsFor${config.name.replaceFirstChar { it.titlecase() }}",
     DownloadTranslationsTask::class.java
 ) {
     it.apiToken.set(lokaliseExtensions.apiToken)
     it.projectId.set(lokaliseExtensions.projectId)
-    it.lokaliseOutputDir.set(unzipLokaliseTask.map { task -> task.destinationDir })
+    it.lokaliseCliFile.set(lokaliseCliFile.map { it.get() })
     it.arguments.set(config.arguments)
 }

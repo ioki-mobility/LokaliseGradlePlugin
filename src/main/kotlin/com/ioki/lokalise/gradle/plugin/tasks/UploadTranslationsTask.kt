@@ -4,13 +4,15 @@ import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileTree
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
-import java.io.File
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
 internal abstract class UploadTranslationsTask : DefaultTask() {
 
@@ -24,7 +26,10 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
     abstract val translationFilesToUpload: Property<ConfigurableFileTree>
 
     @get:Input
-    abstract val lokaliseCliOutputDir: Property<File>
+    abstract val lokaliseCliFile: RegularFileProperty
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
 
     @TaskAction
     fun f() {
@@ -35,9 +40,9 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
         val stringFilesAsString = fileTree.toList().joinToString(separator = ",") {
             it.path.replace(fileTree.dir.absolutePath, ".")
         }
-        project.exec {
+        execOperations.exec {
             it.commandLine(
-                "${lokaliseCliOutputDir.get()}/lokalise",
+                lokaliseCliFile.get(),
                 "file",
                 "upload",
                 "--token",
@@ -59,10 +64,10 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
 
 internal fun TaskContainer.registerUploadTranslationTask(
     lokaliseExtensions: LokaliseExtension,
-    unzipLokaliseTask: Provider<UnzipLokaliseCliTask>
+    lokaliseCliFile: Provider<RegularFileProperty>,
 ): TaskProvider<UploadTranslationsTask> = register("uploadTranslations", UploadTranslationsTask::class.java) {
     it.apiToken.set(lokaliseExtensions.apiToken)
     it.projectId.set(lokaliseExtensions.projectId)
-    it.lokaliseCliOutputDir.set(unzipLokaliseTask.map { task -> task.destinationDir })
+    it.lokaliseCliFile.set(lokaliseCliFile.map { it.get() })
     it.translationFilesToUpload.set(lokaliseExtensions.translationsFilesToUpload)
 }

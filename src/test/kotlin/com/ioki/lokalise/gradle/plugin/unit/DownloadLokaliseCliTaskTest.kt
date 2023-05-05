@@ -47,7 +47,7 @@ class DownloadLokaliseCliTaskTest {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("unzipLokaliseCli")
+            .withArguments("downloadLokaliseCli")
             .build()
 
         expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)

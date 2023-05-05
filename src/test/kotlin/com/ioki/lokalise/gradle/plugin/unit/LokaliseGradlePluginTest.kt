@@ -11,11 +11,12 @@ import strikt.assertions.isEqualTo
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.createFile
+import kotlin.io.path.createTempDirectory
 import kotlin.io.path.writeText
 
 class LokaliseGradlePluginTest {
-    @TempDir
-    lateinit var tempDir: Path
+    //@TempDir
+     var tempDir: Path = createTempDirectory()
 
     @BeforeEach
     fun `setup lokalise test project dir`() {
@@ -79,8 +80,10 @@ class LokaliseGradlePluginTest {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("downloadTranslationsForLibrary")
+            .withArguments("downloadTranslationsForLibrary", "--stacktrace")
             .buildAndFail()
+
+        println(result.output)
 
         expectThat(result.task(":downloadTranslationsForLibrary")?.outcome).isEqualTo(TaskOutcome.FAILED)
         expectThat(result.output).contains("400 Invalid `X-Api-Token`")

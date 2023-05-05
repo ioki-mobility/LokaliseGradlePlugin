@@ -16,6 +16,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.writeText
 
 class DownloadLokaliseCliTaskTest {
+
     @TempDir
     lateinit var tempDir: Path
 
@@ -24,11 +25,13 @@ class DownloadLokaliseCliTaskTest {
         Paths.get(tempDir.toString(), "settings.gradle")
         val buildGradle = Paths.get(tempDir.toString(), "build.gradle.kts")
 
-        buildGradle.writeText("""
+        buildGradle.writeText(
+            """
             plugins {
                 id("com.ioki.lokalise")
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     @Test
@@ -79,6 +82,17 @@ class DownloadLokaliseCliTaskTest {
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
             .withArguments("downloadLokaliseCli")
+            .build()
+
+        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
+    @Test
+    fun `do not throw if configuration cache is enabled`() {
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("downloadLokaliseCli", "--configuration-cache")
             .build()
 
         expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)

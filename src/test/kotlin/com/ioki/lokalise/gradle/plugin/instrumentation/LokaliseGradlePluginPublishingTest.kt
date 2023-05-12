@@ -43,15 +43,9 @@ class LokaliseGradlePluginPublishingTest {
             plugins {
                 id("com.ioki.lokalise")
             }
-            val filesToUpload = provider {
-                fileTree(rootDir) {
-                    include("build.gradle.kts")
-                }
-            }
             lokalise {
                 apiToken.set("AWESOM3-AP1-T0KEN")
                 projectId.set("AW3S0ME-PR0J3C7-1D")
-                translationsFilesToUpload.set(filesToUpload)
             }
         """.trimIndent()
         )

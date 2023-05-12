@@ -132,6 +132,9 @@ downloadStringsConfigs {
 This will generate two tasks `downloadTranslationsForMain` and `downloadTranslationsForSpanishhOnly`.
 If you run the latter, it will only download the translated strings for spanish.
 
+By default, there is also on `downloadTranslationsForAll` task that will execute all the created tasks in case you 
+have to execute all of them after each other.
+
 # Release
 
 * Checkout `main` branch

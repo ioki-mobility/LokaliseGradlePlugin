@@ -15,12 +15,14 @@ class LokaliseGradlePlugin : Plugin<Project> {
             lokaliseExtensions = lokaliseExtensions,
             lokaliseCliFile = downloadLokaliseCliTask.map { it.lokaliseCliFile }
         )
+        val downloadTranslationsForAll = target.tasks.register("downloadTranslationsForAll")
         lokaliseExtensions.downloadStringsConfigs.all {
-            target.tasks.registerDownloadTranslationTask(
+            val customDownloadTask = target.tasks.registerDownloadTranslationTask(
                 config = it,
                 lokaliseExtensions = lokaliseExtensions,
                 lokaliseCliFile = downloadLokaliseCliTask.map { it.lokaliseCliFile }
             )
+            downloadTranslationsForAll.configure { allTask -> allTask.dependsOn(customDownloadTask) }
         }
     }
 }

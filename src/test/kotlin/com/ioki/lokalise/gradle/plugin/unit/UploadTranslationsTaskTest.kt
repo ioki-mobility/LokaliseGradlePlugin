@@ -38,7 +38,17 @@ class UploadTranslationsTaskTest {
             lokalise {
                 apiToken.set("AWESOM3-AP1-T0KEN")
                 projectId.set("AW3S0ME-PR0J3C7-1D")
-                translationsFilesToUpload.set(filesToUpload)
+                uploadStringsConfig {
+                    translationsFilesToUpload.set(filesToUpload)
+                    arguments(
+                        "--replace-modified",
+                        "--cleanup-mode",
+                        "--include-path",
+                        "--distinguish-by-file",
+                        "--lang-iso", "en_BZ",
+                        "--poll"
+                    )
+                }
             }
         """.trimIndent()
         )
@@ -81,6 +91,18 @@ class UploadTranslationsTaskTest {
                     "\\./settings\\.gradle,\\./build\\.gradle\\.kts"
         )
         expectThat(result.output).contains(expectBuildAndSettingOrSettingAndBuild)
+        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+    }
+
+    @Test
+    fun `correct arguments will be used for execution but failed because of wrong token`() {
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("uploadTranslations", "--info")
+            .buildAndFail()
+
+        expectThat(result.output).contains("--replace-modified, --cleanup-mode")
         expectThat(result.output).contains("400 Invalid `X-Api-Token`")
     }
 

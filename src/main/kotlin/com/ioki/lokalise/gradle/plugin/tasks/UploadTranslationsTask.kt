@@ -5,6 +5,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.LogLevel
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -26,6 +28,9 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
     abstract val translationFilesToUpload: Property<ConfigurableFileTree>
 
     @get:Input
+    abstract val arguments: ListProperty<String>
+
+    @get:Input
     abstract val lokaliseCliFile: RegularFileProperty
 
     @get:Inject
@@ -40,24 +45,21 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
         val stringFilesAsString = fileTree.toList().joinToString(separator = ",") {
             it.path.replace(fileTree.dir.absolutePath, ".")
         }
+        val command = listOf(
+            lokaliseCliFile.get(),
+            "file",
+            "upload",
+            "--token",
+            apiToken.get(),
+            "--project-id",
+            projectId.get(),
+            "--file",
+            stringFilesAsString,
+            *arguments.get().toTypedArray()
+        )
+        logger.log(LogLevel.INFO, "Execute the following command:\n$command")
         execOperations.exec {
-            it.commandLine(
-                lokaliseCliFile.get(),
-                "file",
-                "upload",
-                "--token",
-                apiToken.get(),
-                "--project-id",
-                projectId.get(),
-                "--file",
-                stringFilesAsString,
-                "--replace-modified",
-                "--cleanup-mode",
-                "--include-path",
-                "--distinguish-by-file",
-                "--lang-iso", "en_BZ",
-                "--poll"
-            )
+            it.commandLine(command)
         }
     }
 }
@@ -69,5 +71,6 @@ internal fun TaskContainer.registerUploadTranslationTask(
     it.apiToken.set(lokaliseExtensions.apiToken)
     it.projectId.set(lokaliseExtensions.projectId)
     it.lokaliseCliFile.set(lokaliseCliFile.map { it.get() })
-    it.translationFilesToUpload.set(lokaliseExtensions.translationsFilesToUpload)
+    it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
+    it.arguments.set(lokaliseExtensions.uploadStringsConfig.arguments)
 }

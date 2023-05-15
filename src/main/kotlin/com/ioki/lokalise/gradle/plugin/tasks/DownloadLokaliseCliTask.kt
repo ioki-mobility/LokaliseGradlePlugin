@@ -54,8 +54,11 @@ internal fun TaskContainer.registerDownloadLokaliseCliTask(): TaskProvider<Downl
         it.lokaliseCliFile.set(lokaliseBuildDir.resolve("cli"))
     }
 
-private fun findCliUrl(): String = if (System.getProperty("os.name").lowercase(Locale.getDefault()).contains("mac")) {
-    "https://github.com/lokalise/lokalise-cli-2-go/releases/download/v2.6.8/lokalise2_darwin_arm64.tar.gz"
-} else {
-    "https://github.com/lokalise/lokalise-cli-2-go/releases/download/v2.6.8/lokalise2_linux_x86_64.tar.gz"
+private fun findCliUrl(): String = when {
+    System.getProperty("os.name").lowercase(Locale.getDefault()).contains("mac") && System.getProperty("os.arch") == "x86_64" ->
+        "https://github.com/lokalise/lokalise-cli-2-go/releases/download/v2.6.8/lokalise2_darwin_x86_64.tar.gz"
+    System.getProperty("os.name").lowercase(Locale.getDefault()).contains("mac") ->
+        "https://github.com/lokalise/lokalise-cli-2-go/releases/download/v2.6.8/lokalise2_darwin_arm64.tar.gz"
+    else ->
+        "https://github.com/lokalise/lokalise-cli-2-go/releases/download/v2.6.8/lokalise2_linux_x86_64.tar.gz"
 }

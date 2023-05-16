@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin)
+    alias(libs.plugins.wrapperUpgrade)
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -71,4 +72,13 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+wrapperUpgrade {
+    gradle {
+        create("lokaliseGradlePlugin") {
+            repo.set("ioki-mobility/LokaliseGradlePlugin")
+            baseBranch.set("main")
+        }
+    }
 }

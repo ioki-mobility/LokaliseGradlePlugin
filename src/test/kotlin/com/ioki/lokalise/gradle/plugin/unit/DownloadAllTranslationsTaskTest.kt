@@ -55,7 +55,6 @@ class DownloadAllTranslationsTaskTest {
             .withArguments("downloadTranslationsForAll", "--continue")
             .buildAndFail()
 
-
         expectThat(result.tasks.map { it.path }).contains(
             ":downloadTranslationsForMain",
             ":downloadTranslationsForSpanishOnly"

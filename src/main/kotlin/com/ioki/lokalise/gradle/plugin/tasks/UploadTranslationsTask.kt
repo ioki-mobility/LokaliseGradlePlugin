@@ -10,6 +10,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
@@ -30,7 +31,7 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
     @get:Input
     abstract val arguments: ListProperty<String>
 
-    @get:Input
+    @get:InputFile
     abstract val lokaliseCliFile: RegularFileProperty
 
     @get:Inject

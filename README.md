@@ -1,5 +1,9 @@
 # LokaliseGradlePlugin
 
+[![Test Plugin](https://github.com/ioki-mobility/LokaliseGradlePlugin/actions/workflows/test-plugin.yml/badge.svg)](https://github.com/ioki-mobility/LokaliseGradlePlugin/actions/workflows/test-plugin.yml)
+[![Jitpack](https://jitpack.io/v/ioki-mobility/LokaliseGradlePlugin.svg)](https://jitpack.io/#ioki-mobility/LokaliseGradlePlugin)
+[![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ioki-mobility/LokaliseGradlePlugin/blob/master/LICENSE.md)
+
 A Gradle plugin that up- and downloads strings from [lokalise](https://lokalise.com) using the [lokalise CLI](https://github.com/lokalise/lokalise-cli-2-go) under the hood.
 
 ## Usage

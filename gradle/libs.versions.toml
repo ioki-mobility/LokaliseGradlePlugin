@@ -3,5 +3,5 @@ test-kotlinTest = "org.jetbrains.kotlin:kotlin-test:1.9.0"
 test-strikt = "io.strikt:strikt-core:0.34.1"
 
 [plugins]
-kotlin = "org.jetbrains.kotlin.jvm:1.8.22"
+kotlin = "org.jetbrains.kotlin.jvm:1.9.0"
 wrapperUpgrade = "org.gradle.wrapper-upgrade:0.11.2"

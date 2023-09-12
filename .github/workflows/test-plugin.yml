@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew test --tests 'com.ioki.lokalise.gradle.plugin.unit*'
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
           check_name: 'Unit Test Reports'
@@ -54,7 +54,7 @@ jobs:
         run: ./gradlew test --tests 'com.ioki.lokalise.gradle.plugin.instrumentation*'
 
       - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
+        uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
           check_name: 'Publishing Test Reports'

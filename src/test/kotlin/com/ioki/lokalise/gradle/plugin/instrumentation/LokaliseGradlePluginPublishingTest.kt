@@ -55,7 +55,7 @@ class LokaliseGradlePluginPublishingTest {
     fun `consuming of plugin marker publication works`() {
         val newBuildFile = buildGradle.readText().replace(
             oldValue = """id("com.ioki.lokalise")""",
-            newValue = """id("com.ioki.lokalise") version "1.0.0""""
+            newValue = """id("com.ioki.lokalise") version "1.1.0""""
         )
         buildGradle.writeText(newBuildFile)
         val newSettingsFile = settingsGradle.readText().replace(

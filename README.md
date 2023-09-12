@@ -143,8 +143,9 @@ have to execute all of them after each other.
 
 * Checkout `main` branch
 * Update the `version` in [`build.gradle.kts`](build.gradle.kts)
-* Commit with message `Next version`
-* Tag the version with the same version and push it to origin
-* Update the version to the "next **minor** version" (including `-SNAPSHOT`)
-* Push to origin
+* Update the `version` in the instrumentation test `consuming of plugin marker publication works`
+* Commit with message `Next release`
+* Tag the version with the same version and push
+    * `git tag -a [VERSION] -m "Next release`
+    * `git push origin [VERSION]`
 * Create a new [release](https://github.com/ioki-mobility/LokaliseGradlePlugin/releases/new) 

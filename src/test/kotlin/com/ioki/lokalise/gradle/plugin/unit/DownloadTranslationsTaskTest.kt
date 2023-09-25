@@ -35,39 +35,22 @@ class DownloadTranslationsTaskTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 downloadStringsConfigs {
                     register("library") {
-                        arguments = listOf(
-                            "--format",
-                            "xml",
-                            "--filter-langs",
-                            "en,de,de_CH,fr_CH,es,it,nl,ca,ar",
-                            "--export-empty-as",
-                            "skip",
-                            "--include-description=false",
-                            "--export-sort",
-                            "first_added",
-                            "--directory-prefix=.",
-                            "--filter-filenames", 
-                            "./src/main/res/values-%LANG_ISO%/strings.xml",
-                            "--indentation",
-                            "4sp",
-                            "--replace-breaks=false"
+                        params(
+                            "--format" to "xml",
+                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
+                            "--export-empty-as" to "skip",
+                            "--include-description" to "false",
+                            "--export-sort" to "first_added",
+                            "--directory-prefix" to ".",
+                            "--filter-filenames" to listOf("./src/main/res/values-%LANG_ISO%/strings.xml"),
+                            "--indentation" to "4sp",
+                            "--replace-breaks" to false
                         )   
                     }
                 }
             }
         """.trimIndent()
         )
-    }
-
-    @Test
-    fun `running downloadTranslationsForLibrary task has successful outcome of downloadLokaliseCli`() {
-        val result = GradleRunner.create()
-            .withProjectDir(tempDir.toFile())
-            .withPluginClasspath()
-            .withArguments("downloadTranslationsForLibrary")
-            .buildAndFail()
-
-        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
     }
 
     @Test
@@ -79,7 +62,7 @@ class DownloadTranslationsTaskTest {
             .buildAndFail()
 
         expectThat(result.task(":downloadTranslationsForLibrary")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+        expectThat(result.output).contains("Invalid `X-Api-Token`")
     }
 
     @Test
@@ -91,7 +74,7 @@ class DownloadTranslationsTaskTest {
             .buildAndFail()
 
         expectThat(result.task(":downloadTranslationsForLibrary")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+        expectThat(result.output).contains("Invalid `X-Api-Token")
         expectThat(result.output.contains("Configuration cache problems found in this build")).isFalse()
     }
 }

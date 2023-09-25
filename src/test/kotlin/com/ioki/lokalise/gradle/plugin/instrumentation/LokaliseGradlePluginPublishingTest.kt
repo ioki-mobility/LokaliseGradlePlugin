@@ -2,12 +2,11 @@ package com.ioki.lokalise.gradle.plugin.instrumentation
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import strikt.api.expectThat
-import strikt.assertions.isEqualTo
+import strikt.assertions.contains
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.readText
@@ -33,6 +32,7 @@ class LokaliseGradlePluginPublishingTest {
                 repositories {
                     gradlePluginPortal()
                     mavenCentral()
+                    maven(url = "https://jitpack.io") // For transitive dependencies
                     mavenLocal()
                 }
             }
@@ -52,24 +52,19 @@ class LokaliseGradlePluginPublishingTest {
     }
 
     @Test
-    fun `consuming of plugin marker publication works`() {
+    fun `consuming of plugin publication via mavenLocal works`() {
         val newBuildFile = buildGradle.readText().replace(
             oldValue = """id("com.ioki.lokalise")""",
             newValue = """id("com.ioki.lokalise") version "1.1.0""""
         )
         buildGradle.writeText(newBuildFile)
-        val newSettingsFile = settingsGradle.readText().replace(
-            oldValue = "mavenCentral()",
-            newValue = "mavenCentral() \n mavenLocal()"
-        )
-        settingsGradle.writeText(newSettingsFile)
 
         val result: BuildResult = GradleRunner.create()
             .withProjectDir(testTmpPath.toFile())
-            .withArguments(listOf("downloadLokaliseCli"))
+            .withArguments("tasks")
             .build()
 
-        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        expectThat(result.output).contains("BUILD SUCCESSFUL")
     }
 
     @Test
@@ -77,7 +72,7 @@ class LokaliseGradlePluginPublishingTest {
         var testVersion = System.getenv("IOKI_LOKALISE_PLUGIN_TEST_VERSION")
             ?: fail(
                 "Please provide plugin version from jitpack" +
-                        " via environment variable 'IOKI_LOKALISE_PLUGIN_TEST_VERSION'"
+                    " via environment variable 'IOKI_LOKALISE_PLUGIN_TEST_VERSION'"
             )
         val isSemverVersion = Regex("[0-9]+\\.[0-9]+\\.[0-9]+").matches(testVersion)
         if (!isSemverVersion) {
@@ -109,10 +104,9 @@ class LokaliseGradlePluginPublishingTest {
 
         val result: BuildResult = GradleRunner.create()
             .withProjectDir(testTmpPath.toFile())
-            .withArguments(listOf("downloadLokaliseCli"))
+            .withArguments("tasks")
             .build()
 
-        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        expectThat(result.output).contains("BUILD SUCCESSFUL")
     }
-
 }

@@ -40,13 +40,11 @@ class UploadTranslationsTaskTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 uploadStringsConfig {
                     translationsFilesToUpload.set(filesToUpload)
-                    arguments(
-                        "--replace-modified",
-                        "--cleanup-mode",
-                        "--include-path",
-                        "--distinguish-by-file",
-                        "--lang-iso", "en_BZ",
-                        "--poll"
+                    params(
+                        "--replace-modified" to true,
+                        "--cleanup-mode" to true,
+                        "--distinguish-by-file" to true,
+                        "--lang-iso" to "en_BZ",
                     )
                 }
             }
@@ -55,26 +53,15 @@ class UploadTranslationsTaskTest {
     }
 
     @Test
-    fun `running uploadingTranslations task has successful outcome of downloadLokaliseCli`() {
-        val result = GradleRunner.create()
-            .withProjectDir(tempDir.toFile())
-            .withPluginClasspath()
-            .withArguments("uploadTranslations")
-            .buildAndFail()
-
-        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
-    }
-
-    @Test
     fun `running uploadTranslations task has been called but failed because of wrong token`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("uploadTranslations")
+            .withArguments("uploadTranslations", "--info")
             .buildAndFail()
 
         expectThat(result.task(":uploadTranslations")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+        expectThat(result.output).contains("Invalid `X-Api-Token`")
     }
 
     @Test
@@ -85,13 +72,9 @@ class UploadTranslationsTaskTest {
             .withArguments("uploadTranslations", "--info")
             .buildAndFail()
 
-        val expectBuildAndSettingOrSettingAndBuild = Regex(
-            "\\./build\\.gradle\\.kts,\\./settings\\.gradle" +
-                    "|" +
-                    "\\./settings\\.gradle,\\./build\\.gradle\\.kts"
-        )
-        expectThat(result.output).contains(expectBuildAndSettingOrSettingAndBuild)
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+        expectThat(result.output).contains("./build.gradle.kts")
+        expectThat(result.output).contains("./settings.gradle")
+        expectThat(result.output).contains("Invalid `X-Api-Token`")
     }
 
     @Test
@@ -102,8 +85,9 @@ class UploadTranslationsTaskTest {
             .withArguments("uploadTranslations", "--info")
             .buildAndFail()
 
-        expectThat(result.output).contains("--replace-modified, --cleanup-mode")
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+        expectThat(result.output).contains("--replace-modified=true")
+        expectThat(result.output).contains("--cleanup-mode=true")
+        expectThat(result.output).contains("Invalid `X-Api-Token`")
     }
 
     @Test
@@ -115,7 +99,7 @@ class UploadTranslationsTaskTest {
             .buildAndFail()
 
         expectThat(result.task(":uploadTranslations")?.outcome).isEqualTo(TaskOutcome.FAILED)
-        expectThat(result.output).contains("400 Invalid `X-Api-Token`")
+        expectThat(result.output).contains("Invalid `X-Api-Token`")
         expectThat(result.output.contains("Configuration cache problems found in this build")).isFalse()
     }
 }

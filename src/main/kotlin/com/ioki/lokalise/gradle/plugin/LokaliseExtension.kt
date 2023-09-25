@@ -35,17 +35,17 @@ abstract class LokaliseExtension(
 
 abstract class DownloadStringsConfig(
     private val name: String,
-) : Named, Argumenter {
+) : Named, Parameter {
     override fun getName(): String = name
 }
 
-abstract class UploadStringsConfig @Inject constructor(objects: ObjectFactory) : Argumenter {
+abstract class UploadStringsConfig @Inject constructor(objects: ObjectFactory) : Parameter {
     val translationsFilesToUpload: Property<ConfigurableFileTree> = objects.property(ConfigurableFileTree::class.java)
 }
 
-interface Argumenter {
-    var arguments: List<String>
-    fun arguments(vararg arguments: String) {
-        this.arguments = listOf(*arguments)
+interface Parameter {
+    var params: Map<String, Any>
+    fun params(vararg params: Pair<String, Any>) {
+        this.params = params.toMap()
     }
 }

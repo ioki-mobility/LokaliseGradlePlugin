@@ -4,6 +4,8 @@ kotlinVersion = "1.9.10"
 [libraries]
 test-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }
 test-strikt = "io.strikt:strikt-core:0.34.1"
+lokaliseApi = "com.github.ioki-mobility.kmp-lokalise-api:lokalise-api:0.0.1"
+kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }

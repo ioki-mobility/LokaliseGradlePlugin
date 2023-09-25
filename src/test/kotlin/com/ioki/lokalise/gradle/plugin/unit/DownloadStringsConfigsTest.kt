@@ -8,6 +8,7 @@ import org.junit.jupiter.api.io.TempDir
 import strikt.api.expectThat
 import strikt.assertions.contains
 import strikt.assertions.isEqualTo
+import strikt.assertions.isNotNull
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.writeText
@@ -33,41 +34,29 @@ class DownloadStringsConfigsTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 downloadStringsConfigs {
                     register("library") {
-                        arguments = listOf(
-                            "--format",
-                            "xml",
-                            "--filter-langs",
-                            "en,de,de_CH,fr_CH,es,it,nl,ca,ar",
-                            "--export-empty-as",
-                            "skip",
-                            "--include-description=false",
-                            "--export-sort",
-                            "first_added",
-                            "--directory-prefix=.",
-                            "--filter-filenames", 
-                            "./src/main/res/values-%LANG_ISO%/strings.xml",
-                            "--indentation",
-                            "4sp",
-                            "--replace-breaks=false"
+                        params(
+                            "--format" to "xml",
+                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
+                            "--export-empty-as" to "skip",
+                            "--include-description" to false,
+                            "--export-sort" to "first_added",
+                            "--directory-prefix" to ".",
+                            "--filter-filenames" to listOf("./src/main/res/values-%LANG_ISO%/strings.xml"),
+                            "--indentation" to "4sp",
+                            "--replace-breaks" to "false"
                         )   
                     }
                     register("flavor") {
-                        arguments = listOf(
-                            "--format",
-                            "xml",
-                            "--filter-langs",
-                            "en,de,de_CH,fr_CH,es,it,nl,ca,ar",
-                            "--export-empty-as",
-                            "skip",
-                            "--include-description=false",
-                            "--export-sort",
-                            "first_added",
-                            "--directory-prefix=.",
-                            "--filter-filenames", 
-                            "./src/${"$"}{findProperty("flavor")}/res/values-%LANG_ISO%/strings.xml",
-                            "--indentation",
-                            "4sp",
-                            "--replace-breaks=false"
+                        params(
+                            "--format" to "xml",
+                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
+                            "--export-empty-as" to "skip",
+                            "--include-description" to false,
+                            "--export-sort" to "first_added",
+                            "--directory-prefix" to ".",
+                            "--filter-filenames" to listOf("./src/${"$"}{findProperty("flavor")}/res/values-%LANG_ISO%/strings.xml"),
+                            "--indentation" to "4sp",
+                            "--replace-breaks" to "false"
                         )   
                     }
                 }
@@ -77,14 +66,15 @@ class DownloadStringsConfigsTest {
     }
 
     @Test
-    fun `running downloadTranslationsForFlavor task has successful outcome of downloadLokaliseCli`() {
+    fun `running downloadTranslationsForFlavor task is created and can run but fails because of wrong credentials`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
             .withArguments("downloadTranslationsForFlavor", "-Pflavor=hamburg", "--info")
             .buildAndFail()
 
-        expectThat(result.task(":downloadLokaliseCli")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+        expectThat(result.task(":downloadTranslationsForFlavor")).isNotNull()
+        expectThat(result.task(":downloadTranslationsForFlavor")?.outcome).isEqualTo(TaskOutcome.FAILED)
     }
 
     @Test
@@ -92,9 +82,10 @@ class DownloadStringsConfigsTest {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
-            .withArguments("downloadTranslationsForFlavor", "-Pflavor=hamburg", "--info")
+            .withArguments("downloadTranslationsForLibrary", "--info")
             .buildAndFail()
 
-        expectThat(result.output).contains("./src/hamburg/res/values-%LANG_ISO%/strings.xml")
+        expectThat(result.task(":downloadTranslationsForLibrary")).isNotNull()
+        expectThat(result.task(":downloadTranslationsForLibrary")?.outcome).isEqualTo(TaskOutcome.FAILED)
     }
 }

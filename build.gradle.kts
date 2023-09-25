@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.wrapperUpgrade)
@@ -9,9 +7,16 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io") {
+        content {
+            includeGroup("com.github.ioki-mobility.kmp-lokalise-api")
+        }
+    }
 }
 
 dependencies {
+    implementation(libs.lokaliseApi)
+    implementation(libs.kotlinCoroutines)
     testImplementation(libs.test.kotlinTest)
     testImplementation(libs.test.strikt)
 }

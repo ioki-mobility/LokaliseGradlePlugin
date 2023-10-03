@@ -7,4 +7,4 @@ test-strikt = "io.strikt:strikt-core:0.34.1"
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
-wrapperUpgrade = "org.gradle.wrapper-upgrade:0.11.3"
+wrapperUpgrade = "org.gradle.wrapper-upgrade:0.11.4"

@@ -40,7 +40,7 @@ publishing {
                 url.set("https://github.com/ioki-mobility/LokaliseGradlePlugin")
                 licenses {
                     license {
-                        name.set("MIT License")
+                        name.set("MIT")
                         url.set("https://github.com/ioki-mobility/LokaliseGradlePlugin/blob/main/LICENSE.md")
                     }
                 }

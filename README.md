@@ -4,7 +4,7 @@
 [![Jitpack](https://jitpack.io/v/ioki-mobility/LokaliseGradlePlugin.svg)](https://jitpack.io/#ioki-mobility/LokaliseGradlePlugin)
 [![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ioki-mobility/LokaliseGradlePlugin/blob/master/LICENSE.md)
 
-A Gradle plugin that up- and downloads strings from [lokalise](https://lokalise.com) using the [lokalise CLI](https://github.com/lokalise/lokalise-cli-2-go) under the hood.
+A Gradle plugin that can up- and downloads strings from [lokalise](https://lokalise.com).
 
 ## Usage
 
@@ -18,7 +18,7 @@ pluginManagement {
         maven { 
             url("https://jitpack.io")
             content {
-                includeGroup("com.github.ioki-mobility.LokaliseGradlePlugin")
+              includeGroupByRegex("com.github.ioki-mobility.*")
             }
         }
         resolutionStrategy {
@@ -59,32 +59,27 @@ lokalise {
 
 To configure the upload you can use the `lokalise.uploadStringsConfig` function:
 ```kotlin
+val filesToUpload = provider {
+  fileTree(rootDir) {
+    include("**/values/strings.xml")
+    exclude("**/build/**")
+  }
+}
 lokalise {
     uploadStringsConfig {
         translationsFilesToUpload.set(filesToUpload)
-        arguments(
-            "--replace-modified",
-            "--cleanup-mode",
-            "--include-path",
-            "--distinguish-by-file",
-            "--lang-iso", "en_BZ",
-            "--poll"
+        params = mapOf(
+          "replace_modified" to true,
+          "cleanup_mode" to true,
+          "distinguish_by_file" to true,
+          "lang_iso" to "en_BZ",
         )
     }    
 }
 ```
 
 The plugin provides a `uploadTranslations` task that uses the configuration you upload the given translation files.
-The base arguments for that tasks that are put to the lokalise CLI are:
-```
-file upload --token [TOKEN] --project-id [PROJECT_ID] --file [trnslationsFilesToUploadAsString]
-```
-The arguments you provide via the extension will be added afterward. 
-In our example you would end up with:
-```
-file upload --token [TOKEN] --project-id [PROJECT_ID] --file [trnslationsFilesToUploadAsString] /
-    --replace-modified --cleanup-mode --include-path --distinguish-by-file --lang-iso en_BZ --poll
-```
+Which parameter you can use can be found in the [Lokalise API documentation "Upload a file"](https://developers.lokalise.com/reference/upload-a-file).
 
 #### Download configuration
 
@@ -104,8 +99,8 @@ lokalise {
 ```
 
 The `lokalise.downloadStringsConfigs` function is a [NamedDomainObjectContainer](https://docs.gradle.org/8.1.1/javadoc/org/gradle/api/NamedDomainObjectContainer.html) that
-configured a `DownloadStringsConfig`. 
-With that you can configure the arguments you want to put to the CLI [file download](https://github.com/lokalise/lokalise-cli-2-go/blob/604673f0b9bdb4faf1e94fe77a0b5ceb249f4c6c/docs/lokalise2_file_download.md) command.
+configured a `DownloadStringsConfig`.
+Which parameter you can use can be found in the [Lokalise API documentation "Download files"](https://developers.lokalise.com/reference/download-files).
 Each of the created configurations will create a Gradle tasks named like the following:
 ```
 downloadTranslationsFor[name]
@@ -133,11 +128,10 @@ downloadStringsConfigs {
 
 ```
 
-This will generate two tasks `downloadTranslationsForMain` and `downloadTranslationsForSpanishhOnly`.
+This will generate two tasks: `downloadTranslationsForMain` and `downloadTranslationsForSpanishhOnly`.
 If you run the latter, it will only download the translated strings for spanish.
 
-By default, there is also on `downloadTranslationsForAll` task that will execute all the created tasks in case you 
-have to execute all of them after each other.
+There is also an `downloadTranslationsForAll` task that aggregates all created tasks to run all of them together.
 
 # Release
 

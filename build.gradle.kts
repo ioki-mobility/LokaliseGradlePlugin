@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.wrapperUpgrade)
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -76,12 +75,3 @@ tasks.test {
 }
 
 kotlin.jvmToolchain(8)
-
-wrapperUpgrade {
-    gradle {
-        create("lokaliseGradlePlugin") {
-            repo.set("ioki-mobility/LokaliseGradlePlugin")
-            baseBranch.set("main")
-        }
-    }
-}

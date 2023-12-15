@@ -32,7 +32,6 @@ class LokaliseGradlePluginPublishingTest {
                 repositories {
                     gradlePluginPortal()
                     mavenCentral()
-                    maven(url = "https://jitpack.io") // For transitive dependencies
                     mavenLocal()
                 }
             }
@@ -55,52 +54,9 @@ class LokaliseGradlePluginPublishingTest {
     fun `consuming of plugin publication via mavenLocal works`() {
         val newBuildFile = buildGradle.readText().replace(
             oldValue = """id("com.ioki.lokalise")""",
-            newValue = """id("com.ioki.lokalise") version "2.0.0""""
+            newValue = """id("com.ioki.lokalise") version "2.1.0-SNAPSHOT""""
         )
         buildGradle.writeText(newBuildFile)
-
-        val result: BuildResult = GradleRunner.create()
-            .withProjectDir(testTmpPath.toFile())
-            .withArguments("tasks")
-            .build()
-
-        expectThat(result.output).contains("BUILD SUCCESSFUL")
-    }
-
-    @Test
-    fun `consuming of plugin publication via jitpack works`() {
-        var testVersion = System.getenv("IOKI_LOKALISE_PLUGIN_TEST_VERSION")
-            ?: fail(
-                "Please provide plugin version from jitpack" +
-                    " via environment variable 'IOKI_LOKALISE_PLUGIN_TEST_VERSION'"
-            )
-        val isSemverVersion = Regex("[0-9]+\\.[0-9]+\\.[0-9]+").matches(testVersion)
-        if (!isSemverVersion) {
-            testVersion += "-SNAPSHOT"
-        }
-        val newBuildFile = buildGradle.readText().replace(
-            oldValue = """id("com.ioki.lokalise")""",
-            newValue = """id("com.ioki.lokalise") version "$testVersion""""
-        )
-        buildGradle.writeText(newBuildFile)
-        val newSettingsFile = settingsGradle.readText().replace(
-            oldValue = """gradlePluginPortal()""",
-            newValue =
-            """
-                gradlePluginPortal() 
-                maven(url = "https://jitpack.io")
-                resolutionStrategy {
-                    eachPlugin {
-                        if (requested.id.id == "com.ioki.lokalise") {
-                            useModule(
-                                   "com.github.ioki-mobility.LokaliseGradlePlugin:lokalise:${'$'}{requested.version}"
-                            )
-                        }
-                    }
-                }
-            """
-        )
-        settingsGradle.writeText(newSettingsFile)
 
         val result: BuildResult = GradleRunner.create()
             .withProjectDir(testTmpPath.toFile())

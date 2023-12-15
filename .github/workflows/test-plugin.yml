@@ -34,7 +34,8 @@ jobs:
   publishingConsumingPluginTest:
     runs-on: ubuntu-latest
     env:
-      IOKI_LOKALISE_PLUGIN_TEST_VERSION: ${{ github.head_ref || github.ref_name }}
+      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+      GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

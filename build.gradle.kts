@@ -41,6 +41,8 @@ publishing {
         register("pluginMaven", MavenPublication::class.java) {
             artifactId = "lokalise"
             pom {
+                name.set("LokaliseGradlePlugin")
+                description.set("A Gradle plugin that can up- and download strings from lokalise")
                 url.set("https://github.com/ioki-mobility/LokaliseGradlePlugin")
                 licenses {
                     license {
@@ -58,12 +60,13 @@ publishing {
                         email.set("StefMaDev@outlook.com")
                         url.set("https://StefMa.guru")
                         organization.set("ioki")
+                        organizationUrl.set("https://ioki.com")
                     }
                 }
                 scm {
                     url.set("https://github.com/ioki-mobility/LokaliseGradlePlugin")
-                    connection.set("https://github.com/ioki-mobility/LokaliseGradlePlugin.git")
-                    developerConnection.set("git@github.com:ioki-mobility/LokaliseGradlePlugin.git")
+                    connection.set("scm:git:git://github.com/ioki-mobility/LokaliseGradlePlugin.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:ioki-mobility/LokaliseGradlePlugin.git")
                 }
             }
         }

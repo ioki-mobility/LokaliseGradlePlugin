@@ -134,5 +134,6 @@ pluginManagement {
     * `git tag [VERSION]`
     * `git push origin [VERSION]`
 * Update the `version` in [`build.gradle.kts`](build.gradle.kts) to the next **patch** version +`-SNAPSHOT`
+* Update the `version` in the instrumentation test `consuming of plugin publication via mavenLocal works`
 * Commit and push
 * Create a new [release](https://github.com/ioki-mobility/LokaliseGradlePlugin/releases/new) 

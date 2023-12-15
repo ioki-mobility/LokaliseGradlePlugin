@@ -10,32 +10,6 @@ A Gradle plugin that can up- and downloads strings from [lokalise](https://lokal
 
 ### Apply the plugin
 
-Add [JitPack](https://jitpack.io/) to the `settings.gradle[.kts]` file:
-
-```groovy
-pluginManagement {
-    repositories {
-        maven { 
-            url("https://jitpack.io")
-            content {
-              includeGroupByRegex("com.github.ioki-mobility.*")
-            }
-        }
-        resolutionStrategy {
-            it.eachPlugin {
-                if (requested.id.id == "com.ioki.lokalise") {
-                    useModule(
-                        "com.github.ioki-mobility.LokaliseGradlePlugin:lokalise:${requested.version}"
-                    )
-                }
-            }
-        }
-    }
-}
-```
-
-> **Note**: If you use JitPack, the `[CURRENT_VERSION]` can either be a (git) tag (recommended), branch name, or hash.
-
 Add the plugin to the `build.gradle[.kts]` file:
 
 ```kotlin
@@ -135,11 +109,30 @@ There is also an `downloadTranslationsForAll` task that aggregates all created t
 
 # Release
 
+## Snapshot release
+
+By default, each merge to the `main` branch will create a new SNAPSHOT release.
+If you want to use the latest and greatest use the SNAPSHOT version of the plugin.
+But please be aware that they might contain bugs or behaviour changes.
+
+To use the SNAPSHOT version you have to include the sonatype snapshot repository to your `settings.gradle[.kts]`
+```kotlin
+pluginManagement {
+    repositories {
+        maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/")
+    }
+}
+```
+
+## Proper release
+
 * Checkout `main` branch
 * Update the `version` in [`build.gradle.kts`](build.gradle.kts)
-* Update the `version` in the instrumentation test `consuming of plugin marker publication works`
-* Commit with message `Next release`
+* Update the `version` in the instrumentation test `consuming of plugin publication via mavenLocal works`
+* Commit with message `Prepare next relaese`
 * Tag the version with the same version and push
-    * `git tag -a [VERSION] -m "Next release`
+    * `git tag [VERSION]`
     * `git push origin [VERSION]`
+* Update the `version` in [`build.gradle.kts`](build.gradle.kts) to the next **patch** version +`-SNAPSHOT`
+* Commit and push
 * Create a new [release](https://github.com/ioki-mobility/LokaliseGradlePlugin/releases/new) 

@@ -6,11 +6,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven(url = "https://jitpack.io") {
-        content {
-            includeGroup("com.github.ioki-mobility.kmp-lokalise-api")
-        }
-    }
 }
 
 dependencies {

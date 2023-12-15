@@ -30,11 +30,11 @@ java {
 }
 
 version = "2.0.0"
-group = "com.ioki"
+group = "com.ioki.lokalise"
 publishing {
     publications {
         register("pluginMaven", MavenPublication::class.java) {
-            artifactId = "lokalise"
+            artifactId = "lokalise-gradle-plugin"
             pom {
                 name.set("LokaliseGradlePlugin")
                 description.set("A Gradle plugin that can up- and download strings from lokalise")

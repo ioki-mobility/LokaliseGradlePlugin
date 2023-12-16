@@ -2,15 +2,11 @@ plugins {
     alias(libs.plugins.kotlin)
     `java-gradle-plugin`
     `maven-publish`
+    signing
 }
 
 repositories {
     mavenCentral()
-    maven(url = "https://jitpack.io") {
-        content {
-            includeGroup("com.github.ioki-mobility.kmp-lokalise-api")
-        }
-    }
 }
 
 dependencies {
@@ -34,13 +30,15 @@ java {
     withJavadocJar()
 }
 
-version = "2.0.0"
-group = "com.ioki"
+version = "2.1.0-SNAPSHOT"
+group = "com.ioki.lokalise"
 publishing {
     publications {
         register("pluginMaven", MavenPublication::class.java) {
-            artifactId = "lokalise"
+            artifactId = "lokalise-gradle-plugin"
             pom {
+                name.set("LokaliseGradlePlugin")
+                description.set("A Gradle plugin that can up- and download strings from lokalise")
                 url.set("https://github.com/ioki-mobility/LokaliseGradlePlugin")
                 licenses {
                     license {
@@ -58,13 +56,30 @@ publishing {
                         email.set("StefMaDev@outlook.com")
                         url.set("https://StefMa.guru")
                         organization.set("ioki")
+                        organizationUrl.set("https://ioki.com")
                     }
                 }
                 scm {
                     url.set("https://github.com/ioki-mobility/LokaliseGradlePlugin")
-                    connection.set("https://github.com/ioki-mobility/LokaliseGradlePlugin.git")
-                    developerConnection.set("git@github.com:ioki-mobility/LokaliseGradlePlugin.git")
+                    connection.set("scm:git:git://github.com/ioki-mobility/LokaliseGradlePlugin.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:ioki-mobility/LokaliseGradlePlugin.git")
                 }
+            }
+        }
+    }
+    repositories {
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+            name = "SonatypeSnapshot"
+            credentials {
+                username = System.getenv("SONATYPE_USER")
+                password = System.getenv("SONATYPE_PASSWORD")
+            }
+        }
+        maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            name = "SonatypeStaging"
+            credentials {
+                username = System.getenv("SONATYPE_USER")
+                password = System.getenv("SONATYPE_PASSWORD")
             }
         }
     }
@@ -75,3 +90,10 @@ tasks.test {
 }
 
 kotlin.jvmToolchain(8)
+
+signing {
+    val signingKey = System.getenv("GPG_SIGNING_KEY")
+    val signingPassword = System.getenv("GPG_SIGNING_PASSWORD")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign(publishing.publications)
+}

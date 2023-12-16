@@ -1,0 +1,22 @@
+name: 'Publish Snapshot'
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+  GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
+  SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
+  SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+
+jobs:
+  publish-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish to Sonatype Snapshot
+        run: ./gradlew publishAllPublicationsToSonatypeSnapshotRepository

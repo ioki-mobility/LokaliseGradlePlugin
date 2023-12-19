@@ -21,6 +21,8 @@ gradlePlugin {
         register("com.ioki.lokalise") {
             id = "com.ioki.lokalise"
             implementationClass = "com.ioki.lokalise.gradle.plugin.LokaliseGradlePlugin"
+            displayName = "LokaliseGradlePlugin"
+            description = "A Gradle plugin that can up- and download strings from lokalise"
         }
     }
 }
@@ -36,6 +38,8 @@ publishing {
     publications {
         register("pluginMaven", MavenPublication::class.java) {
             artifactId = "lokalise-gradle-plugin"
+        }
+        withType<MavenPublication>().configureEach {
             pom {
                 name.set("LokaliseGradlePlugin")
                 description.set("A Gradle plugin that can up- and download strings from lokalise")

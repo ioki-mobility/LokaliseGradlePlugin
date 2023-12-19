@@ -1,8 +1,9 @@
 # LokaliseGradlePlugin
 
 [![Test Plugin](https://github.com/ioki-mobility/LokaliseGradlePlugin/actions/workflows/test-plugin.yml/badge.svg)](https://github.com/ioki-mobility/LokaliseGradlePlugin/actions/workflows/test-plugin.yml)
-[![Jitpack](https://jitpack.io/v/ioki-mobility/LokaliseGradlePlugin.svg)](https://jitpack.io/#ioki-mobility/LokaliseGradlePlugin)
-[![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ioki-mobility/LokaliseGradlePlugin/blob/master/LICENSE.md)
+[![Maven Central](https://img.shields.io/maven-central/v/com.ioki.lokalise/lokalise-gradle-plugin?labelColor=%2324292E&color=%233246c8)](https://central.sonatype.com/namespace/com.ioki.lokalise)
+[![Snapshot](https://img.shields.io/nexus/s/com.ioki.lokalise/lokalise-gradle-plugin?labelColor=%2324292E&color=%234f78ff&server=https://s01.oss.sonatype.org)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/ioki/lokalise/)
+[![MIT](https://img.shields.io/badge/license-MIT-blue.svg?labelColor=%2324292E&color=%23d11064)](https://github.com/ioki-mobility/LokaliseGradlePlugin/blob/main/LICENSE.md)
 
 A Gradle plugin that can up- and downloads strings from [lokalise](https://lokalise.com).
 

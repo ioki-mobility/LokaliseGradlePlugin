@@ -6,6 +6,8 @@ on:
       - 'main'
 
 env:
+  GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+  GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
   SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
   SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
 
@@ -17,4 +19,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Publish to Sonatype Snapshot
-        run: ./gradlew publishAllPublicationsToSonatypeSnapshotRepository
+        run: ./gradlew publishAllPublicationsToSonatypeSnapshotRepository -PGPG_SIGNING_REQUIRED

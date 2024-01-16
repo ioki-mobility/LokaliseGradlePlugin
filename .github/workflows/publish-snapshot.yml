@@ -6,8 +6,6 @@ on:
       - 'main'
 
 env:
-  GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-  GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
   SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
   SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
 

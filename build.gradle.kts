@@ -105,6 +105,7 @@ kotlin.jvmToolchain(8)
 signing {
     val signingKey = System.getenv("GPG_SIGNING_KEY")
     val signingPassword = System.getenv("GPG_SIGNING_PASSWORD")
-    useInMemoryPgpKeys(signingKey, signingPassword)
+    isRequired = hasProperty("GPG_SIGNING_REQUIRED")
+    if (isRequired) useInMemoryPgpKeys(signingKey, signingPassword)
     sign(publishing.publications)
 }

@@ -33,9 +33,6 @@ jobs:
 
   publishingConsumingPluginTest:
     runs-on: ubuntu-latest
-    env:
-      GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
-      GPG_SIGNING_PASSWORD: ${{ secrets.GPG_SIGNING_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

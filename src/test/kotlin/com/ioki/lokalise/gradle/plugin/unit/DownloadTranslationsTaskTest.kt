@@ -36,15 +36,15 @@ class DownloadTranslationsTaskTest {
                 downloadStringsConfigs {
                     register("library") {
                         params(
-                            "--format" to "xml",
-                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
-                            "--export-empty-as" to "skip",
-                            "--include-description" to "false",
-                            "--export-sort" to "first_added",
-                            "--directory-prefix" to ".",
-                            "--filter-filenames" to listOf("./src/main/res/values-%LANG_ISO%/strings.xml"),
-                            "--indentation" to "4sp",
-                            "--replace-breaks" to false
+                            "format" to "xml",
+                            "filter_langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
+                            "export_empty_as" to "skip",
+                            "include_description" to "false",
+                            "export_sort" to "first_added",
+                            "directory_prefix" to ".",
+                            "filter_filenames" to listOf("./src/main/res/values-%LANG_ISO%/strings.xml"),
+                            "indentation" to "4sp",
+                            "replace_breaks" to false
                         )   
                     }
                 }

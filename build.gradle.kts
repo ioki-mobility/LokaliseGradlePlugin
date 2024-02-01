@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.kotlinCoroutines)
     testImplementation(libs.test.kotlinTest)
     testImplementation(libs.test.strikt)
+    testImplementation(libs.test.kotlinCoroutinesTest)
 }
 
 gradlePlugin {

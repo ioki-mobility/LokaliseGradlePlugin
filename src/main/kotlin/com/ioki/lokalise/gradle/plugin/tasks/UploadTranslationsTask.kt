@@ -1,10 +1,13 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
 import com.ioki.lokalise.api.Lokalise
-import com.ioki.lokalise.api.Result
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.gradle.plugin.LokaliseExtension
+import com.ioki.lokalise.gradle.plugin.internal.FileInfo
+import com.ioki.lokalise.gradle.plugin.internal.LokaliseApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileTree
@@ -37,20 +40,22 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
         if (!projectId.isPresent || !apiToken.isPresent)
             throw GradleException("Please set 'lokalise.projectId' and 'lokalise.apiToken'")
 
-        val lokalise = Lokalise(apiToken.get())
-        translationFilesToUpload.get()
-            .toFileInfo()
-            .also {
-                logger.log(
-                    LogLevel.INFO,
-                    "Execute uploading file with the following params:\n" +
-                        "${params.get()}\n" +
-                        "and the following file info:\n" +
-                        "$it"
-                )
-            }
-            .uploadEach(lokalise, params.get("lang_iso").toString(), params.remove("lang_iso"))
-            .checkProcess(lokalise)
+        val lokaliseApi = LokaliseApi(Lokalise(apiToken.get()), projectId.get())
+        runBlocking {
+            translationFilesToUpload.get()
+                .toFileInfo()
+                .also {
+                    logger.log(
+                        LogLevel.INFO,
+                        "Execute uploading file with the following params:\n" +
+                            "${params.get()}\n" +
+                            "and the following file info:\n" +
+                            "$it"
+                    )
+                }
+                .uploadEach(lokaliseApi, params.get("lang_iso").toString(), params.remove("lang_iso"))
+                .checkProcess(lokaliseApi)
+        }
     }
 
     @OptIn(ExperimentalEncodingApi::class)
@@ -60,52 +65,16 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
         FileInfo(fileName, base64FileContent)
     }
 
-    private fun List<FileInfo>.uploadEach(
-        lokalise: Lokalise,
+    private suspend fun List<FileInfo>.uploadEach(
+        lokaliseApi: LokaliseApi,
         langIso: String,
         params: Map<String, Any>,
-    ): List<FileUpload> = map { fileInfo ->
-        val uploadResult = runBlocking {
-            lokalise.uploadFile(
-                projectId = projectId.get(),
-                data = fileInfo.base64FileContent,
-                filename = fileInfo.fileName,
-                langIso = langIso,
-                bodyParams = params
-            )
-        }
-        when (uploadResult) {
-            is Result.Failure -> throw GradleException(uploadResult.error.message)
-            is Result.Success -> uploadResult.data
-        }
+    ): List<FileUpload> = withContext(Dispatchers.IO) {
+        lokaliseApi.uploadFiles(this@uploadEach, langIso, params)
     }
 
-    private fun List<FileUpload>.checkProcess(lokalise: Lokalise) = runBlocking {
-        forEach { fileUpload ->
-            do {
-                val process = lokalise.retrieveProcess(
-                    projectId = projectId.get(),
-                    processId = fileUpload.process.processId
-                )
-                when (process) {
-                    is Result.Failure -> {
-                        if (process.error.code == 404) {
-                            // 404 indicates it is done... I guess :)
-                            break
-                        }
-                    }
-
-                    is Result.Success -> {
-                        val processStatus = process.data.process.status
-                        if (finishedProcessStatus.contains(processStatus)) {
-                            break
-                        }
-                    }
-                }
-
-                Thread.sleep(1000)
-            } while (true)
-        }
+    private suspend fun List<FileUpload>.checkProcess(lokaliseApi: LokaliseApi) = withContext(Dispatchers.IO) {
+        lokaliseApi.checkProcess(this@checkProcess)
     }
 }
 
@@ -117,13 +86,6 @@ internal fun TaskContainer.registerUploadTranslationTask(
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
     it.params.set(lokaliseExtensions.uploadStringsConfig.params)
 }
-
-private val finishedProcessStatus = listOf("cancelled", "finished", "failed")
-
-private data class FileInfo(
-    val fileName: String,
-    val base64FileContent: String,
-)
 
 private fun MapProperty<String, Any>.get(key: String): Any =
     get().getOrElse(key) { throw GradleException("Value for key(=$key) not found") }

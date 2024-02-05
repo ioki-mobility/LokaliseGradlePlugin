@@ -41,10 +41,10 @@ class UploadTranslationsTaskTest {
                 uploadStringsConfig {
                     translationsFilesToUpload.set(filesToUpload)
                     params(
-                        "--replace-modified" to true,
-                        "--cleanup-mode" to true,
-                        "--distinguish-by-file" to true,
-                        "--lang-iso" to "en_BZ",
+                        "replace_modified" to true,
+                        "cleanup_mode" to true,
+                        "distinguish_by_file" to true,
+                        "lang_iso" to "en_BZ",
                     )
                 }
             }
@@ -85,8 +85,8 @@ class UploadTranslationsTaskTest {
             .withArguments("uploadTranslations", "--info")
             .buildAndFail()
 
-        expectThat(result.output).contains("--replace-modified=true")
-        expectThat(result.output).contains("--cleanup-mode=true")
+        expectThat(result.output).contains("replace_modified=true")
+        expectThat(result.output).contains("cleanup_mode=true")
         expectThat(result.output).contains("Invalid `X-Api-Token`")
     }
 

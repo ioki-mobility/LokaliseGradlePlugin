@@ -1,11 +1,14 @@
 [versions]
 kotlinVersion = "1.9.22"
+kotlinxCoroutinesVersion = "1.7.3"
 
 [libraries]
+lokaliseApi = "com.ioki:lokalise-api:0.0.2"
+kotlinCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesVersion" }
+
 test-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }
 test-strikt = "io.strikt:strikt-core:0.34.1"
-lokaliseApi = "com.ioki:lokalise-api:0.0.2"
-kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+test-kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesVersion" }
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }

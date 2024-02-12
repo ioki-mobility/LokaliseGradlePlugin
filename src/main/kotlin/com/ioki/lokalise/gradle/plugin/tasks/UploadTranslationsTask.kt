@@ -15,9 +15,11 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.internal.impldep.com.fasterxml.jackson.databind.annotation.JsonAppend.Prop
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -28,6 +30,10 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
 
     @get:Input
     abstract val apiToken: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val pollUploadProcess: Property<Boolean>
 
     @get:Input
     abstract val translationFilesToUpload: Property<ConfigurableFileTree>
@@ -54,7 +60,7 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
                     )
                 }
                 .uploadEach(lokaliseApi, params.get("lang_iso").toString(), params.remove("lang_iso"))
-                .checkProcess(lokaliseApi)
+                .run { if(pollUploadProcess.get()) checkProcess(lokaliseApi) }
         }
     }
 

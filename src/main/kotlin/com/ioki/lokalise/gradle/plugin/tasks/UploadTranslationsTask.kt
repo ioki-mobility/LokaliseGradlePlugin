@@ -1,10 +1,10 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
-import com.ioki.lokalise.api.Lokalise
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import com.ioki.lokalise.gradle.plugin.internal.FileInfo
 import com.ioki.lokalise.gradle.plugin.internal.LokaliseApi
+import com.ioki.lokalise.gradle.plugin.internal.LokaliseApiBuildService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -14,22 +14,15 @@ import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.TaskContainer
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.internal.impldep.com.fasterxml.jackson.databind.annotation.JsonAppend.Prop
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.*
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 internal abstract class UploadTranslationsTask : DefaultTask() {
 
-    @get:Input
-    abstract val projectId: Property<String>
-
-    @get:Input
-    abstract val apiToken: Property<String>
+    @get:Internal
+    abstract val lokaliseApi: Property<LokaliseApi>
 
     @get:Input
     @get:Optional
@@ -43,10 +36,6 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
 
     @TaskAction
     fun f() {
-        if (!projectId.isPresent || !apiToken.isPresent)
-            throw GradleException("Please set 'lokalise.projectId' and 'lokalise.apiToken'")
-
-        val lokaliseApi = LokaliseApi(Lokalise(apiToken.get()), projectId.get())
         runBlocking {
             translationFilesToUpload.get()
                 .toFileInfo()
@@ -59,8 +48,8 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
                             "$it"
                     )
                 }
-                .uploadEach(lokaliseApi, params.get("lang_iso").toString(), params.remove("lang_iso"))
-                .run { if(pollUploadProcess.get()) checkProcess(lokaliseApi) }
+                .uploadEach(lokaliseApi.get(), params.get("lang_iso").toString(), params.remove("lang_iso"))
+                .run { if(pollUploadProcess.get()) checkProcess(lokaliseApi.get()) }
         }
     }
 
@@ -85,10 +74,11 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
 }
 
 internal fun TaskContainer.registerUploadTranslationTask(
+    lokaliseService: Provider<LokaliseApiBuildService>,
     lokaliseExtensions: LokaliseExtension,
 ): TaskProvider<UploadTranslationsTask> = register("uploadTranslations", UploadTranslationsTask::class.java) {
-    it.apiToken.set(lokaliseExtensions.apiToken)
-    it.projectId.set(lokaliseExtensions.projectId)
+    it.usesService(lokaliseService)
+    it.lokaliseApi.set(lokaliseService)
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
     it.params.set(lokaliseExtensions.uploadStringsConfig.params)
 }

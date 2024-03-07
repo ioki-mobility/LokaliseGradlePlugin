@@ -1,27 +1,26 @@
 package com.ioki.lokalise.gradle.plugin
 
-import com.ioki.lokalise.gradle.plugin.internal.LokaliseApiBuildService
+import com.ioki.lokalise.api.Lokalise
+import com.ioki.lokalise.gradle.plugin.internal.DefaultLokaliseApi
+import com.ioki.lokalise.gradle.plugin.internal.LokaliseApi
 import com.ioki.lokalise.gradle.plugin.tasks.registerDownloadTranslationTask
 import com.ioki.lokalise.gradle.plugin.tasks.registerUploadTranslationTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 
 class LokaliseGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         val lokaliseExtensions = target.extensions.createLokaliseExtension()
 
-        val lokaliseService = target.gradle.sharedServices.registerIfAbsent(
-            "LokaliseApi",
-            LokaliseApiBuildService::class.java
-        ) { buildServiceSpec ->
-            buildServiceSpec.parameters { lokaliseApiParams ->
-                lokaliseApiParams.apiToken.set(lokaliseExtensions.apiToken)
-                lokaliseApiParams.projectId.set(lokaliseExtensions.projectId)
-            }
+        val lokaliseApi: Provider<LokaliseApi> = lokaliseExtensions.apiToken.zip(
+            lokaliseExtensions.projectId
+        ) { token, id ->
+            DefaultLokaliseApi(Lokalise(token), id)
         }
 
         target.tasks.registerUploadTranslationTask(
-            lokaliseService = lokaliseService,
+            lokaliseApi = lokaliseApi,
             lokaliseExtensions = lokaliseExtensions,
         )
 

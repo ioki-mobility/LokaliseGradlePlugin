@@ -4,7 +4,6 @@ import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import com.ioki.lokalise.gradle.plugin.internal.FileInfo
 import com.ioki.lokalise.gradle.plugin.internal.LokaliseApi
-import com.ioki.lokalise.gradle.plugin.internal.LokaliseApiBuildService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -19,7 +18,7 @@ import org.gradle.api.tasks.*
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-internal abstract class UploadTranslationsTask : DefaultTask() {
+abstract class UploadTranslationsTask : DefaultTask() {
 
     @get:Internal
     abstract val lokaliseApi: Property<LokaliseApi>
@@ -74,11 +73,10 @@ internal abstract class UploadTranslationsTask : DefaultTask() {
 }
 
 internal fun TaskContainer.registerUploadTranslationTask(
-    lokaliseService: Provider<LokaliseApiBuildService>,
+    lokaliseApi: Provider<LokaliseApi>,
     lokaliseExtensions: LokaliseExtension,
 ): TaskProvider<UploadTranslationsTask> = register("uploadTranslations", UploadTranslationsTask::class.java) {
-    it.usesService(lokaliseService)
-    it.lokaliseApi.set(lokaliseService)
+    it.lokaliseApi.set(lokaliseApi)
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
     it.params.set(lokaliseExtensions.uploadStringsConfig.params)
 }

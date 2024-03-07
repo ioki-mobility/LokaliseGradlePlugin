@@ -8,34 +8,14 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import org.gradle.api.GradleException
-import org.gradle.api.provider.Property
-import org.gradle.api.services.BuildService
-import org.gradle.api.services.BuildServiceParameters
-import java.io.File
 
-internal interface LokaliseApi {
+interface LokaliseApi {
     suspend fun uploadFiles(
         fileInfos: List<FileInfo>,
         langIso: String,
         params: Map<String, Any>
     ): List<FileUpload>
     suspend fun checkProcess(fileUploads: List<FileUpload>)
-}
-
-internal abstract class LokaliseApiBuildService : BuildService<LokaliseApiParams>, LokaliseApi {
-    private val lokaliseApi = DefaultLokaliseApi(Lokalise(parameters.apiToken.get()), parameters.projectId.get())
-
-    override suspend fun uploadFiles(
-        fileInfos: List<FileInfo>,
-        langIso: String,
-        params: Map<String, Any>
-    ) = lokaliseApi.uploadFiles(
-        fileInfos,
-        langIso,
-        params,
-    )
-
-    override suspend fun checkProcess(fileUploads: List<FileUpload>) = lokaliseApi.checkProcess(fileUploads)
 }
 
 internal class DefaultLokaliseApi(
@@ -115,12 +95,7 @@ internal class DefaultLokaliseApi(
     private fun <T> List<T>.chunkedToSix(): List<List<T>> = chunked(6)
 }
 
-interface LokaliseApiParams : BuildServiceParameters {
-    val apiToken: Property<String>
-    val projectId: Property<String>
-}
-
-internal data class FileInfo(
+data class FileInfo(
     val fileName: String,
     val base64FileContent: String,
 )

@@ -12,4 +12,4 @@ test-kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
-dokka = "org.jetbrains.dokka:1.9.10"
+dokka = "org.jetbrains.dokka:1.9.20"

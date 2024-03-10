@@ -157,7 +157,6 @@ class UploadTranslationsTaskTest {
             .withArguments("uploadTranslations", "--configuration-cache", "--info")
             .buildAndFail()
 
-        println(result.output)
         expectThat(result.task(":uploadTranslations")?.outcome).isEqualTo(TaskOutcome.FAILED)
         expectThat(result.output).contains("Invalid `X-Api-Token`")
         expectThat(result.output.contains("Configuration cache problems found in this build")).isFalse()

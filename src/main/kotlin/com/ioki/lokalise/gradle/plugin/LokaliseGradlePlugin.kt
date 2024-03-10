@@ -24,7 +24,6 @@ class LokaliseGradlePlugin : Plugin<Project> {
             lokaliseExtensions = lokaliseExtensions,
         )
 
-
         val downloadTranslationsForAll = target.tasks.register("downloadTranslationsForAll")
         lokaliseExtensions.downloadStringsConfigs.all {
             val customDownloadTask = target.tasks.registerDownloadTranslationTask(

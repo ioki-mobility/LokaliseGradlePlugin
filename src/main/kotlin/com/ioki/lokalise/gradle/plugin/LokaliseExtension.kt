@@ -19,7 +19,7 @@ abstract class LokaliseExtension(
 
     val projectId: Property<String> = objects.property(String::class.java)
 
-    val pollUploadProcess: Property<Boolean> = objects.property(Boolean::class.java).convention(false)
+    val pollUploadProcess: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
 
     internal val downloadStringsConfigs: NamedDomainObjectContainer<DownloadStringsConfig> =
         objects.domainObjectContainer(DownloadStringsConfig::class.java)

@@ -10,23 +10,24 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 
 class LokaliseGradlePlugin : Plugin<Project> {
-    override fun apply(target: Project) {
-        val lokaliseExtensions = target.extensions.createLokaliseExtension()
+    override fun apply(project: Project) {
+        val lokaliseExtensions = project.extensions.createLokaliseExtension()
 
-        val lokaliseApi: Provider<LokaliseApi> = lokaliseExtensions.apiToken.zip(
+        val lokaliseApi: Provider<LokaliseApi> = project.providers.zip(
+            lokaliseExtensions.apiToken,
             lokaliseExtensions.projectId
         ) { token, id ->
             DefaultLokaliseApi(Lokalise(token), id)
         }
 
-        target.tasks.registerUploadTranslationTask(
+        project.tasks.registerUploadTranslationTask(
             lokaliseApi = lokaliseApi,
             lokaliseExtensions = lokaliseExtensions,
         )
 
-        val downloadTranslationsForAll = target.tasks.register("downloadTranslationsForAll")
+        val downloadTranslationsForAll = project.tasks.register("downloadTranslationsForAll")
         lokaliseExtensions.downloadStringsConfigs.all {
-            val customDownloadTask = target.tasks.registerDownloadTranslationTask(
+            val customDownloadTask = project.tasks.registerDownloadTranslationTask(
                 config = it,
                 lokaliseExtensions = lokaliseExtensions,
             )

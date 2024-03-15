@@ -8,6 +8,14 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Provider
+
+class LokaliseApiFactory(
+    private val apiTokenProvider: Provider<String>,
+    private val projectIdProvider: Provider<String>,
+) {
+    fun create(): LokaliseApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+}
 
 interface LokaliseApi {
     suspend fun uploadFiles(

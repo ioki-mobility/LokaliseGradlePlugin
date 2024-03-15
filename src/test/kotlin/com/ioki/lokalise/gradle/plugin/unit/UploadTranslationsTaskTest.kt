@@ -90,7 +90,7 @@ class UploadTranslationsTaskTest {
             }
             
             tasks.register<UploadTranslationsTask>("testUploadTranslations") {
-                lokaliseApi.set(fakeLokaliseApi)
+                lokaliseApiFactory.set({ fakeLokaliseApi })
                 translationFilesToUpload.set(provider {
                     fileTree(rootDir) {
                         include("build.gradle.kts")
@@ -155,6 +155,7 @@ class UploadTranslationsTaskTest {
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
             .withArguments("uploadTranslations", "--configuration-cache", "--info")
+            .forwardOutput()
             .buildAndFail()
 
         expectThat(result.task(":uploadTranslations")?.outcome).isEqualTo(TaskOutcome.FAILED)

@@ -6,8 +6,8 @@ import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.api.models.Projects
 import com.ioki.lokalise.api.models.RetrievedProcess
-import com.ioki.lokalise.gradle.plugin.internal.FileInfo
-import com.ioki.lokalise.gradle.plugin.internal.LokaliseApi
+import com.ioki.lokalise.gradle.plugin.DefaultLokaliseApi
+import com.ioki.lokalise.gradle.plugin.FileInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.currentTime
@@ -22,7 +22,7 @@ class LokaliseApiTest {
     @Test
     fun `concurrency uploadFile with 1-6 files does not delay and is done after 0 millis`() = runTest {
         val lokalise = createLokalise()
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         (0..6).forEach {
             expectThat(currentTime).isEqualTo(0)
@@ -40,7 +40,7 @@ class LokaliseApiTest {
     @Test
     fun `concurrency uploadFile with 7-12 files delay once and is done after 1000 millis`() = runTest {
         val lokalise = createLokalise()
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         var expectedTime = 0L
         (7..12).forEach {
@@ -60,7 +60,7 @@ class LokaliseApiTest {
     @Test
     fun `concurrency uploadFile with 13-18 files delay twice and is done after 2000 millis`() = runTest {
         val lokalise = createLokalise()
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         var expectedTime = 0L
         (13..18).forEach {
@@ -85,7 +85,7 @@ class LokaliseApiTest {
                 Result.Success(createFileUpload())
             }
         )
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         expectThat(currentTime).isEqualTo(0L)
         lokaliseApi.uploadFiles(
@@ -107,7 +107,7 @@ class LokaliseApiTest {
                     Result.Success(createFileUpload())
                 }
             )
-            val lokaliseApi = LokaliseApi(lokalise, "projectId")
+            val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
             expectThat(currentTime).isEqualTo(0L)
             lokaliseApi.uploadFiles(
@@ -123,7 +123,7 @@ class LokaliseApiTest {
     @Test
     fun `concurrency checkProcess with 1-6 files does not delay and is done after 0 millis`() = runTest {
         val lokalise = createLokalise()
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         (0..6).forEach {
             expectThat(currentTime).isEqualTo(0)
@@ -139,7 +139,7 @@ class LokaliseApiTest {
     @Test
     fun `concurrency checkProcess with 7-12 files delay once and is done after 1000 millis`() = runTest {
         val lokalise = createLokalise()
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         var expectedTime = 0L
         (7..12).forEach {
@@ -157,7 +157,7 @@ class LokaliseApiTest {
     @Test
     fun `concurrency checkProcess with 13-18 files delay twice and is done after 2000 millis`() = runTest {
         val lokalise = createLokalise()
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         var expectedTime = 0L
         (13..18).forEach {
@@ -180,7 +180,7 @@ class LokaliseApiTest {
                 Result.Success(createRetrieveProcess(status = "finished"))
             }
         )
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         expectThat(currentTime).isEqualTo(0L)
         lokaliseApi.checkProcess(
@@ -200,7 +200,7 @@ class LokaliseApiTest {
                     Result.Success(createRetrieveProcess(status = "finished"))
                 }
             )
-            val lokaliseApi = LokaliseApi(lokalise, "projectId")
+            val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
             expectThat(currentTime).isEqualTo(0L)
             lokaliseApi.checkProcess(
@@ -221,7 +221,7 @@ class LokaliseApiTest {
                 Result.Success(createRetrieveProcess(status = status))
             }
         )
-        val lokaliseApi = LokaliseApi(lokalise, "projectId")
+        val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         expectThat(currentTime).isEqualTo(0L)
         lokaliseApi.checkProcess(

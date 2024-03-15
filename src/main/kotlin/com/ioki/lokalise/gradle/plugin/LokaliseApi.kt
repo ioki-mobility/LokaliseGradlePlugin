@@ -1,4 +1,4 @@
-package com.ioki.lokalise.gradle.plugin.internal
+package com.ioki.lokalise.gradle.plugin
 
 import com.ioki.lokalise.api.Lokalise
 import com.ioki.lokalise.api.Result
@@ -8,15 +8,32 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Provider
 
-internal class LokaliseApi(
+class LokaliseApiFactory(
+    private val apiTokenProvider: Provider<String>,
+    private val projectIdProvider: Provider<String>,
+) {
+    fun create(): LokaliseApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+}
+
+interface LokaliseApi {
+    suspend fun uploadFiles(
+        fileInfos: List<FileInfo>,
+        langIso: String,
+        params: Map<String, Any>
+    ): List<FileUpload>
+    suspend fun checkProcess(fileUploads: List<FileUpload>)
+}
+
+internal class DefaultLokaliseApi(
     private val lokalise: Lokalise,
     private val projectId: String,
-) {
+) : LokaliseApi {
 
     private val finishedProcessStatus = listOf("cancelled", "finished", "failed")
 
-    suspend fun uploadFiles(
+    override suspend fun uploadFiles(
         fileInfos: List<FileInfo>,
         langIso: String,
         params: Map<String, Any>,
@@ -44,7 +61,7 @@ internal class LokaliseApi(
         }
     }
 
-    suspend fun checkProcess(fileUploads: List<FileUpload>) = coroutineScope {
+    override suspend fun checkProcess(fileUploads: List<FileUpload>) = coroutineScope {
         val chunkedToSix = fileUploads.chunkedToSix()
         chunkedToSix.forEachIndexed { index, chunkedFileUploads ->
             val deferreds = chunkedFileUploads.map {
@@ -86,7 +103,7 @@ internal class LokaliseApi(
     private fun <T> List<T>.chunkedToSix(): List<List<T>> = chunked(6)
 }
 
-internal data class FileInfo(
+data class FileInfo(
     val fileName: String,
     val base64FileContent: String,
 )

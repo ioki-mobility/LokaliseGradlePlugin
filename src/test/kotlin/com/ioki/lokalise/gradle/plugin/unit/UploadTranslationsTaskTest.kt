@@ -53,6 +53,65 @@ class UploadTranslationsTaskTest {
     }
 
     @Test
+    fun `UploadTranslationsTask does not call pollUploadProcess when input is set to false`() {
+        val buildGradle = Paths.get(tempDir.toString(), "build.gradle.kts")
+        buildGradle.writeText(
+            """
+            import com.ioki.lokalise.gradle.plugin.tasks.UploadTranslationsTask
+            import com.ioki.lokalise.gradle.plugin.*
+            import com.ioki.lokalise.api.models.*
+                    
+            plugins {
+                id("com.ioki.lokalise")
+            }
+                
+            val fakeLokaliseApi: LokaliseApi = object : LokaliseApi {
+                override suspend fun uploadFiles(
+                    fileInfos: List<FileInfo>,
+                    langIso: String,
+                    params: Map<String, Any>
+                ): List<FileUpload> {
+                    val process = FileUpload.Process(
+                        "procId",
+                        "type",
+                        "status",
+                        "mesasge",
+                        12,
+                        "email",
+                        "at",
+                        1
+                    )
+                    return listOf(FileUpload("projId", process))
+                }
+
+                override suspend fun checkProcess(fileUploads: List<FileUpload>) {
+                    error("Was called but shouldn't be")
+                }
+            }
+            
+            tasks.register<UploadTranslationsTask>("testUploadTranslations") {
+                lokaliseApiFactory.set({ fakeLokaliseApi })
+                translationFilesToUpload.set(provider {
+                    fileTree(rootDir) {
+                        include("build.gradle.kts")
+                        include("settings.gradle")
+                    }
+                })
+                params.set(objects.mapProperty<String, Any>().convention(mapOf("lang_iso" to "en"))) 
+                pollUploadProcess.set(false)
+            }
+            """.trimIndent()
+        )
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("testUploadTranslations", "--info")
+            .build()
+
+        expectThat(result.task(":testUploadTranslations")?.outcome).isEqualTo(TaskOutcome.SUCCESS)
+    }
+
+    @Test
     fun `running uploadTranslations task has been called but failed because of wrong token`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())
@@ -96,6 +155,7 @@ class UploadTranslationsTaskTest {
             .withProjectDir(tempDir.toFile())
             .withPluginClasspath()
             .withArguments("uploadTranslations", "--configuration-cache", "--info")
+            .forwardOutput()
             .buildAndFail()
 
         expectThat(result.task(":uploadTranslations")?.outcome).isEqualTo(TaskOutcome.FAILED)

@@ -6,8 +6,8 @@ import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.api.models.Projects
 import com.ioki.lokalise.api.models.RetrievedProcess
-import com.ioki.lokalise.gradle.plugin.internal.DefaultLokaliseApi
-import com.ioki.lokalise.gradle.plugin.internal.FileInfo
+import com.ioki.lokalise.gradle.plugin.DefaultLokaliseApi
+import com.ioki.lokalise.gradle.plugin.FileInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.currentTime

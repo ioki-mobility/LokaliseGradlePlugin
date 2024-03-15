@@ -2,9 +2,9 @@ package com.ioki.lokalise.gradle.plugin.tasks
 
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.gradle.plugin.LokaliseExtension
-import com.ioki.lokalise.gradle.plugin.internal.FileInfo
-import com.ioki.lokalise.gradle.plugin.internal.LokaliseApi
-import com.ioki.lokalise.gradle.plugin.internal.LokaliseApiFactory
+import com.ioki.lokalise.gradle.plugin.FileInfo
+import com.ioki.lokalise.gradle.plugin.LokaliseApi
+import com.ioki.lokalise.gradle.plugin.LokaliseApiFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

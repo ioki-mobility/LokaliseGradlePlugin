@@ -1,6 +1,5 @@
 package com.ioki.lokalise.gradle.plugin
 
-import com.ioki.lokalise.gradle.plugin.internal.LokaliseApiFactory
 import com.ioki.lokalise.gradle.plugin.tasks.registerDownloadTranslationTask
 import com.ioki.lokalise.gradle.plugin.tasks.registerUploadTranslationTask
 import org.gradle.api.Plugin

@@ -1,4 +1,4 @@
-package com.ioki.lokalise.gradle.plugin.internal
+package com.ioki.lokalise.gradle.plugin
 
 import com.ioki.lokalise.api.Lokalise
 import com.ioki.lokalise.api.Result

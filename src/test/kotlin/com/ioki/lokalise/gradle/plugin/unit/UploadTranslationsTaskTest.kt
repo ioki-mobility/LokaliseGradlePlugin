@@ -58,7 +58,7 @@ class UploadTranslationsTaskTest {
         buildGradle.writeText(
             """
             import com.ioki.lokalise.gradle.plugin.tasks.UploadTranslationsTask
-            import com.ioki.lokalise.gradle.plugin.internal.*
+            import com.ioki.lokalise.gradle.plugin.*
             import com.ioki.lokalise.api.models.*
                     
             plugins {

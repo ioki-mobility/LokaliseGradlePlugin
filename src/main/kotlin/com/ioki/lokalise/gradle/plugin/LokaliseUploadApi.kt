@@ -18,6 +18,13 @@ class LokaliseUploadApiFactory(
     fun create(): LokaliseUploadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
 }
 
+class LokaliseDownloadApiFactory(
+    private val apiTokenProvider: Provider<String>,
+    private val projectIdProvider: Provider<String>,
+) {
+    fun create(): LokaliseDownloadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+}
+
 interface LokaliseUploadApi {
     suspend fun uploadFiles(
         fileInfos: List<FileInfo>,

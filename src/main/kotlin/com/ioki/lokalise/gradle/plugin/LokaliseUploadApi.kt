@@ -2,6 +2,7 @@ package com.ioki.lokalise.gradle.plugin
 
 import com.ioki.lokalise.api.Lokalise
 import com.ioki.lokalise.api.Result
+import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -26,10 +27,18 @@ interface LokaliseUploadApi {
     suspend fun checkProcess(fileUploads: List<FileUpload>)
 }
 
+interface LokaliseDownloadApi {
+    suspend fun downloadFiles(
+        format: String,
+        params: Map<String, Any>
+    ): FileDownload
+}
+
+
 internal class DefaultLokaliseApi(
     private val lokalise: Lokalise,
     private val projectId: String,
-) : LokaliseUploadApi {
+) : LokaliseUploadApi, LokaliseDownloadApi {
 
     private val finishedProcessStatus = listOf("cancelled", "finished", "failed")
 
@@ -96,6 +105,17 @@ internal class DefaultLokaliseApi(
         }
     }
 
+    override suspend fun downloadFiles(format: String, params: Map<String, Any>): FileDownload {
+        val result = lokalise.downloadFiles(
+            projectId = projectId,
+            format = format,
+            bodyParams = params,
+        )
+        return when (result) {
+            is Result.Failure -> throw GradleException("Can't download files\n${result.error.message}")
+            is Result.Success -> result.data
+        }
+    }
     /**
      * This is required because Lokalise API only allows 6 files to be uploaded at once.
      * See also [https://lokalise.com/blog/announcing-api-rate-limits/](https://lokalise.com/blog/announcing-api-rate-limits/)

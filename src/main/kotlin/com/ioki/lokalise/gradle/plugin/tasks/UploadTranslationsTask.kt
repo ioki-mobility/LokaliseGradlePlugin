@@ -3,8 +3,8 @@ package com.ioki.lokalise.gradle.plugin.tasks
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.gradle.plugin.LokaliseExtension
 import com.ioki.lokalise.gradle.plugin.FileInfo
-import com.ioki.lokalise.gradle.plugin.LokaliseApi
-import com.ioki.lokalise.gradle.plugin.LokaliseApiFactory
+import com.ioki.lokalise.gradle.plugin.LokaliseUploadApi
+import com.ioki.lokalise.gradle.plugin.LokaliseUploadApiFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -25,7 +25,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 abstract class UploadTranslationsTask : DefaultTask() {
 
     @get:Input
-    abstract val lokaliseApiFactory: Property<() -> LokaliseApi>
+    abstract val lokaliseApiFactory: Property<() -> LokaliseUploadApi>
 
     @get:Input
     @get:Optional
@@ -65,23 +65,23 @@ abstract class UploadTranslationsTask : DefaultTask() {
     }
 
     private suspend fun List<FileInfo>.uploadEach(
-        lokaliseApi: LokaliseApi,
+        lokaliseApi: LokaliseUploadApi,
         langIso: String,
         params: Map<String, Any>,
     ): List<FileUpload> = withContext(Dispatchers.IO) {
         lokaliseApi.uploadFiles(this@uploadEach, langIso, params)
     }
 
-    private suspend fun List<FileUpload>.checkProcess(lokaliseApi: LokaliseApi) = withContext(Dispatchers.IO) {
+    private suspend fun List<FileUpload>.checkProcess(lokaliseApi: LokaliseUploadApi) = withContext(Dispatchers.IO) {
         lokaliseApi.checkProcess(this@checkProcess)
     }
 }
 
 internal fun TaskContainer.registerUploadTranslationTask(
-    lokaliseApiFactory: LokaliseApiFactory,
+    lokaliseUploadApiFactory: LokaliseUploadApiFactory,
     lokaliseExtensions: LokaliseExtension,
 ): TaskProvider<UploadTranslationsTask> = register("uploadTranslations", UploadTranslationsTask::class.java) {
-    it.lokaliseApiFactory.set(lokaliseApiFactory::create)
+    it.lokaliseApiFactory.set(lokaliseUploadApiFactory::create)
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
     it.params.set(lokaliseExtensions.uploadStringsConfig.params)
 }

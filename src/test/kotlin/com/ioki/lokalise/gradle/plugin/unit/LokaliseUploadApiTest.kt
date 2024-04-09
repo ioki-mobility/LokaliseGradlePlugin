@@ -17,7 +17,7 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class LokaliseApiTest {
+class LokaliseUploadApiTest {
 
     @Test
     fun `concurrency uploadFile with 1-6 files does not delay and is done after 0 millis`() = runTest {

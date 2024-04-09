@@ -10,14 +10,14 @@ import kotlinx.coroutines.delay
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Provider
 
-class LokaliseApiFactory(
+class LokaliseUploadApiFactory(
     private val apiTokenProvider: Provider<String>,
     private val projectIdProvider: Provider<String>,
 ) {
-    fun create(): LokaliseApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+    fun create(): LokaliseUploadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
 }
 
-interface LokaliseApi {
+interface LokaliseUploadApi {
     suspend fun uploadFiles(
         fileInfos: List<FileInfo>,
         langIso: String,
@@ -29,7 +29,7 @@ interface LokaliseApi {
 internal class DefaultLokaliseApi(
     private val lokalise: Lokalise,
     private val projectId: String,
-) : LokaliseApi {
+) : LokaliseUploadApi {
 
     private val finishedProcessStatus = listOf("cancelled", "finished", "failed")
 

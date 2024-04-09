@@ -9,13 +9,13 @@ class LokaliseGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val lokaliseExtensions = project.extensions.createLokaliseExtension()
 
-        val apiFactory = LokaliseApiFactory(
+        val apiFactory = LokaliseUploadApiFactory(
             apiTokenProvider = lokaliseExtensions.apiToken,
             projectIdProvider = lokaliseExtensions.projectId
         )
 
         project.tasks.registerUploadTranslationTask(
-            lokaliseApiFactory = apiFactory,
+            lokaliseUploadApiFactory = apiFactory,
             lokaliseExtensions = lokaliseExtensions,
         )
 

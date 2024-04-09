@@ -1,12 +1,10 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
-import com.ioki.lokalise.api.Lokalise
-import com.ioki.lokalise.api.Result
 import com.ioki.lokalise.gradle.plugin.DownloadStringsConfig
-import com.ioki.lokalise.gradle.plugin.LokaliseExtension
+import com.ioki.lokalise.gradle.plugin.LokaliseDownloadApi
+import com.ioki.lokalise.gradle.plugin.LokaliseDownloadApiFactory
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
@@ -26,10 +24,7 @@ import javax.inject.Inject
 internal abstract class DownloadTranslationsTask : DefaultTask() {
 
     @get:Input
-    abstract val projectId: Property<String>
-
-    @get:Input
-    abstract val apiToken: Property<String>
+    abstract val lokaliseApiFactory: Property<() -> LokaliseDownloadApi>
 
     @get:Input
     abstract val params: MapProperty<String, Any>
@@ -45,25 +40,18 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
 
     @TaskAction
     fun f() {
-        if (!projectId.isPresent || !apiToken.isPresent)
-            throw GradleException("Please set 'lokalise.projectId' and 'lokalise.apiToken'")
-
         logger.log(LogLevel.INFO, "Execute downloading files with the following params:\n${params.get()}")
 
         val format = params.get()["format"]
         val newParams = params.get().toMutableMap().apply { remove("format") }
 
         val downloadedFile = runBlocking {
-            Lokalise(apiToken.get()).downloadFiles(
-                projectId = projectId.get(),
+            lokaliseApiFactory.get().invoke().downloadFiles(
                 format = format.toString(),
-                bodyParams = newParams,
+                params = newParams,
             )
         }
-        val bundleUrl = when (downloadedFile) {
-            is Result.Failure -> throw GradleException("Can't download files\n${downloadedFile.error.message}")
-            is Result.Success -> downloadedFile.data.bundleUrl
-        }
+        val bundleUrl = downloadedFile.bundleUrl
 
         val outputZipFile = projectLayout.buildDirectory.file("lokalise/translations.zip")
             .get()
@@ -84,13 +72,12 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
 }
 
 internal fun TaskContainer.registerDownloadTranslationTask(
+    lokaliseDownloadApiFactory: LokaliseDownloadApiFactory,
     config: DownloadStringsConfig,
-    lokaliseExtensions: LokaliseExtension,
 ): TaskProvider<DownloadTranslationsTask> = register(
     "downloadTranslationsFor${config.name.replaceFirstChar { it.titlecase() }}",
     DownloadTranslationsTask::class.java
 ) {
-    it.apiToken.set(lokaliseExtensions.apiToken)
-    it.projectId.set(lokaliseExtensions.projectId)
+    it.lokaliseApiFactory.set(lokaliseDownloadApiFactory::create)
     it.params.set(config.params)
 }

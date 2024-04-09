@@ -41,7 +41,6 @@ interface LokaliseDownloadApi {
     ): FileDownload
 }
 
-
 internal class DefaultLokaliseApi(
     private val lokalise: Lokalise,
     private val projectId: String,

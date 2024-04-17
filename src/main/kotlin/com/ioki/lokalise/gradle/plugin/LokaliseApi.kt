@@ -60,7 +60,7 @@ internal class DefaultLokaliseApi(
                     )
 
                     when (uploadResult) {
-                        is Result.Failure -> throw GradleException(uploadResult.error.message)
+                        is Result.Failure -> throw GradleException("Can't upload files\n${uploadResult.error.message}")
                         is Result.Success -> uploadResult.data
                     }
                 }

@@ -65,7 +65,7 @@ class UploadTranslationsTaskTest {
                 id("com.ioki.lokalise")
             }
                 
-            val fakeLokaliseApi: LokaliseApi = object : LokaliseApi {
+            val fakeLokaliseApi: LokaliseUploadApi = object : LokaliseUploadApi {
                 override suspend fun uploadFiles(
                     fileInfos: List<FileInfo>,
                     langIso: String,

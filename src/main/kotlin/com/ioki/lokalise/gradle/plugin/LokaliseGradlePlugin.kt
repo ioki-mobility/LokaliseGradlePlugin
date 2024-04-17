@@ -9,13 +9,13 @@ class LokaliseGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val lokaliseExtensions = project.extensions.createLokaliseExtension()
 
-        val apiFactory = LokaliseUploadApiFactory(
+        val apiFactory = LokaliseApiFactory(
             apiTokenProvider = lokaliseExtensions.apiToken,
             projectIdProvider = lokaliseExtensions.projectId
         )
 
         project.tasks.registerUploadTranslationTask(
-            lokaliseUploadApiFactory = apiFactory,
+            lokaliseApiFactory = apiFactory,
             lokaliseExtensions = lokaliseExtensions,
         )
 
@@ -23,10 +23,7 @@ class LokaliseGradlePlugin : Plugin<Project> {
         lokaliseExtensions.downloadStringsConfigs.all {
             val customDownloadTask = project.tasks.registerDownloadTranslationTask(
                 config = it,
-                lokaliseDownloadApiFactory = LokaliseDownloadApiFactory(
-                    apiTokenProvider = lokaliseExtensions.apiToken,
-                    projectIdProvider = lokaliseExtensions.projectId
-                ),
+                lokaliseApiFactory = apiFactory,
             )
             downloadTranslationsForAll.configure { allTask -> allTask.dependsOn(customDownloadTask) }
         }

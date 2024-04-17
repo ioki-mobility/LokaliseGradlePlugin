@@ -11,18 +11,12 @@ import kotlinx.coroutines.delay
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Provider
 
-class LokaliseUploadApiFactory(
+class LokaliseApiFactory(
     private val apiTokenProvider: Provider<String>,
     private val projectIdProvider: Provider<String>,
 ) {
-    fun create(): LokaliseUploadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
-}
-
-class LokaliseDownloadApiFactory(
-    private val apiTokenProvider: Provider<String>,
-    private val projectIdProvider: Provider<String>,
-) {
-    fun create(): LokaliseDownloadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+    fun createUploadApi(): LokaliseUploadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+    fun createDownloadApi(): LokaliseDownloadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
 }
 
 interface LokaliseUploadApi {

@@ -1,8 +1,8 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
 import com.ioki.lokalise.gradle.plugin.DownloadStringsConfig
+import com.ioki.lokalise.gradle.plugin.LokaliseApiFactory
 import com.ioki.lokalise.gradle.plugin.LokaliseDownloadApi
-import com.ioki.lokalise.gradle.plugin.LokaliseDownloadApiFactory
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ArchiveOperations
@@ -72,12 +72,12 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
 }
 
 internal fun TaskContainer.registerDownloadTranslationTask(
-    lokaliseDownloadApiFactory: LokaliseDownloadApiFactory,
+    lokaliseApiFactory: LokaliseApiFactory,
     config: DownloadStringsConfig,
 ): TaskProvider<DownloadTranslationsTask> = register(
     "downloadTranslationsFor${config.name.replaceFirstChar { it.titlecase() }}",
     DownloadTranslationsTask::class.java
 ) {
-    it.lokaliseApiFactory.set(lokaliseDownloadApiFactory::create)
+    it.lokaliseApiFactory.set(lokaliseApiFactory::createDownloadApi)
     it.params.set(config.params)
 }

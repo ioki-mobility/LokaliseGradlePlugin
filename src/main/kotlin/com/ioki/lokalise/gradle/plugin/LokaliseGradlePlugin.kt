@@ -23,7 +23,7 @@ class LokaliseGradlePlugin : Plugin<Project> {
         lokaliseExtensions.downloadStringsConfigs.all {
             val customDownloadTask = project.tasks.registerDownloadTranslationTask(
                 config = it,
-                lokaliseExtensions = lokaliseExtensions,
+                lokaliseApiFactory = apiFactory,
             )
             downloadTranslationsForAll.configure { allTask -> allTask.dependsOn(customDownloadTask) }
         }

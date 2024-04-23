@@ -108,6 +108,18 @@ If you run the latter, it will only download the translated strings for spanish.
 
 There is also an `downloadTranslationsForAll` task that aggregates all created tasks to run all of them together.
 
+#### Polling configuration (optional, default `true`)
+
+By default, the plugin will poll the Lokalise API until the upload is finished.
+This is helpful to catch errors with the uploaded files.
+
+However, if you want to disable this behaviour you can set the `pollUploadProcess` property to `false`:
+```kotlin
+lokalise {
+  pollUploadProcess.set(false)
+}
+```
+
 # Release
 
 ## Snapshot release

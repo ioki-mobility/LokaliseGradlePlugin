@@ -83,6 +83,7 @@ internal fun TaskContainer.registerUploadTranslationTask(
 ): TaskProvider<UploadTranslationsTask> = register("uploadTranslations", UploadTranslationsTask::class.java) {
     it.lokaliseApiFactory.set(lokaliseApiFactory::createUploadApi)
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
+    it.pollUploadProcess.set(lokaliseExtensions.pollUploadProcess)
     it.params.set(lokaliseExtensions.uploadStringsConfig.params)
 }
 

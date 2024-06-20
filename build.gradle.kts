@@ -101,7 +101,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
-kotlin.jvmToolchain(8)
+kotlin.jvmToolchain(11)
 
 signing {
     val signingKey = System.getenv("GPG_SIGNING_KEY")

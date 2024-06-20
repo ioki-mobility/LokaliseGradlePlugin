@@ -3,7 +3,7 @@ kotlinVersion = "2.0.0"
 kotlinxCoroutinesVersion = "1.8.1"
 
 [libraries]
-lokaliseApi = "com.ioki:lokalise-api:0.0.3"
+lokaliseApi = "com.ioki:lokalise-api:0.0.4"
 kotlinCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesVersion" }
 
 test-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }

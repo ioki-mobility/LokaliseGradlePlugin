@@ -7,7 +7,7 @@ lokaliseApi = "com.ioki:lokalise-api:0.0.4"
 kotlinCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesVersion" }
 
 test-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinVersion" }
-test-strikt = "io.strikt:strikt-core:0.34.1"
+test-strikt = "io.strikt:strikt-core:0.35.1"
 test-kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesVersion" }
 
 [plugins]

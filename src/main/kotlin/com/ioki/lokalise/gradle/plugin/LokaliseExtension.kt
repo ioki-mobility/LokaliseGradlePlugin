@@ -38,6 +38,12 @@ abstract class LokaliseExtension(
 abstract class DownloadStringsConfig(
     private val name: String,
 ) : Named, Parameter {
+    /**
+     * Checks if all translations are done.
+     * If set to true and translations are not done, the task will fail.
+     */
+    abstract val checkTranslationProcess: Property<Boolean>
+
     override fun getName(): String = name
 }
 

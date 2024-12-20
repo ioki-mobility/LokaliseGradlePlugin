@@ -1,19 +1,15 @@
 plugins {
     kotlin("jvm") version "1.9.0"
-    id("com.ioki.lokalise") version "2.3.0-SNAPSHOT"
 }
 
-lokalise {
-    apiToken.set("your-api-token")
-    projectId.set("your-project-id")
-    downloadStringsConfigs {
-        create("strings") {
-            params(
-                "format" to "json",
-                "original_filenames" to true,
-                "export_empty_as" to "skip",
-                "bundle_structure" to "%LANG_ISO%.%FORMAT%"
-            )
-        }
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
+}
+
+dependencies {
+    gradleApi()
+    implementation("com.ioki.lokalise:lokalise-gradle-plugin:2.3.0-SNAPSHOT")
 }

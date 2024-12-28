@@ -4,6 +4,8 @@ import com.ioki.lokalise.api.Lokalise
 import com.ioki.lokalise.api.Result
 import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
+import com.ioki.lokalise.api.models.Project
+import com.ioki.lokalise.api.models.Projects
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -15,8 +17,14 @@ class LokaliseApiFactory(
     private val apiTokenProvider: Provider<String>,
     private val projectIdProvider: Provider<String>,
 ) {
-    fun createUploadApi(): LokaliseUploadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
-    fun createDownloadApi(): LokaliseDownloadApi = DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+    fun createUploadApi(): LokaliseUploadApi =
+        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+
+    fun createDownloadApi(): LokaliseDownloadApi =
+        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+
+    fun createProjectApi(): LokaliseProjectApi =
+        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
 }
 
 interface LokaliseUploadApi {
@@ -25,6 +33,7 @@ interface LokaliseUploadApi {
         langIso: String,
         params: Map<String, Any>
     ): List<FileUpload>
+
     suspend fun checkProcess(fileUploads: List<FileUpload>)
 }
 
@@ -35,10 +44,14 @@ interface LokaliseDownloadApi {
     ): FileDownload
 }
 
+interface LokaliseProjectApi {
+    suspend fun getProject(): Project
+}
+
 internal class DefaultLokaliseApi(
     private val lokalise: Lokalise,
     private val projectId: String,
-) : LokaliseUploadApi, LokaliseDownloadApi {
+) : LokaliseUploadApi, LokaliseDownloadApi, LokaliseProjectApi {
 
     private val finishedProcessStatus = listOf("cancelled", "finished", "failed")
 
@@ -116,6 +129,15 @@ internal class DefaultLokaliseApi(
             is Result.Success -> result.data
         }
     }
+
+    override suspend fun getProject(): Project {
+        return when (val result = lokalise.allProjects()) {
+            is Result.Failure -> throw GradleException("Can't get all project\n${result.error.message}")
+            is Result.Success<Projects> -> result.data.projects.find { it.projectId == projectId }
+                ?: throw GradleException("Can't find project with id $projectId")
+        }
+    }
+
     /**
      * This is required because Lokalise API only allows 6 files to be uploaded at once.
      * See also [https://lokalise.com/blog/announcing-api-rate-limits/](https://lokalise.com/blog/announcing-api-rate-limits/)

@@ -108,6 +108,23 @@ If you run the latter, it will only download the translated strings for spanish.
 
 There is also an `downloadTranslationsForAll` task that aggregates all created tasks to run all of them together.
 
+Optional, you can set to each download config the boolean `checkTranslationProcess` to `true`.
+If enabled, it will check if everything is translated on Lokalise **before** downloading the strings.
+If set, and it is not translated by 100%, the build will fail.
+This is quite useful on CI pipelines to make sure that you don't ship half translated apps
+**before starting a heavy build/lint task**.
+
+You can set this property like this:
+```kotlin
+lokalise {
+    downloadStringsConfigs {
+        register("main") {
+            checkTranslationProcess = true
+        }
+    }
+}
+```
+
 #### Polling configuration (optional, default `true`)
 
 By default, the plugin will poll the Lokalise API until the upload is finished.

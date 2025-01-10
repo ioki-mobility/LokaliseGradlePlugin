@@ -1,5 +1,6 @@
 package com.ioki.lokalise.gradle.plugin
 
+import com.ioki.lokalise.gradle.plugin.tasks.registerCheckEverythingTranslatedTask
 import com.ioki.lokalise.gradle.plugin.tasks.registerDownloadTranslationTask
 import com.ioki.lokalise.gradle.plugin.tasks.registerUploadTranslationTask
 import org.gradle.api.Plugin
@@ -20,12 +21,18 @@ class LokaliseGradlePlugin : Plugin<Project> {
         )
 
         val downloadTranslationsForAll = project.tasks.register("downloadTranslationsForAll")
-        lokaliseExtensions.downloadStringsConfigs.all {
+        lokaliseExtensions.downloadStringsConfigs.all { downloadConfig ->
             val customDownloadTask = project.tasks.registerDownloadTranslationTask(
-                config = it,
+                config = downloadConfig,
                 lokaliseApiFactory = apiFactory,
             )
             downloadTranslationsForAll.configure { allTask -> allTask.dependsOn(customDownloadTask) }
+
+            val checkTranslationTask = project.tasks.registerCheckEverythingTranslatedTask(
+                lokaliseApiFactory = apiFactory,
+                config = downloadConfig,
+            )
+            customDownloadTask.configure { downloadTask -> downloadTask.dependsOn(checkTranslationTask) }
         }
     }
 }

@@ -48,6 +48,19 @@ class DownloadAllTranslationsTaskTest {
     }
 
     @Test
+    fun `tasks has group and description`() {
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("tasks")
+            .build()
+
+        expectThat(result.output).contains("Lokalise")
+        expectThat(result.output).contains("Download translations from Lokalise for main")
+        expectThat(result.output).contains("Download translations from Lokalise for spanishOnly")
+    }
+
+    @Test
     fun `running downloadTranslationsForAll task will execute ForMain and ForSpanishOnly tasks too`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())

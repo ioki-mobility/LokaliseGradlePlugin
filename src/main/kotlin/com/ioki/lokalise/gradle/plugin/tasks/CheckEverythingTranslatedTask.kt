@@ -35,4 +35,6 @@ internal fun TaskContainer.registerCheckEverythingTranslatedTask(
 ) {
     it.lokaliseApiFactory.set(lokaliseApiFactory::createProjectApi)
     it.onlyIf { config.checkTranslationProcess.getOrElse(false) }
+    it.group = "Lokalise"
+    it.description = "Check if all keys are translated for ${config.name}"
 }

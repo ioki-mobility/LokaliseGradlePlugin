@@ -54,6 +54,18 @@ class DownloadTranslationsTaskTest {
     }
 
     @Test
+    fun `tasks has group and description`() {
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("tasks")
+            .build()
+
+        expectThat(result.output).contains("Lokalise")
+        expectThat(result.output).contains("Download translations from Lokalise for library")
+    }
+
+    @Test
     fun `running downloadTranslationsForLibrary task has been called but failed because of wrong token`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())

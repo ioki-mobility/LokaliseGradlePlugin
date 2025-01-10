@@ -85,6 +85,8 @@ internal fun TaskContainer.registerUploadTranslationTask(
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
     it.pollUploadProcess.set(lokaliseExtensions.pollUploadProcess)
     it.params.set(lokaliseExtensions.uploadStringsConfig.params)
+    it.group = "Lokalise"
+    it.description = "Upload translations to Lokalise"
 }
 
 private fun MapProperty<String, Any>.get(key: String): Any =

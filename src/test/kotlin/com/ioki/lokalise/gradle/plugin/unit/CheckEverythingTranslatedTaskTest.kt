@@ -66,7 +66,6 @@ class CheckEverythingTranslatedTaskTest {
             .withArguments("downloadTranslationsForFlavor")
             .buildAndFail()
 
-        println(result.output)
         expectThat(result.task(":checkEverythingIsTranslatedForFlavor"))
             .isNotNull()
             .get { outcome }

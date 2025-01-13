@@ -44,6 +44,19 @@ class CheckEverythingTranslatedTaskTest {
     }
 
     @Test
+    fun `tasks has group and description`() {
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("tasks")
+            .build()
+
+        expectThat(result.output).contains("Lokalise")
+        expectThat(result.output).contains("Check if all keys are translated for library")
+        expectThat(result.output).contains("Check if all keys are translated for flavor")
+    }
+
+    @Test
     fun `running downloadTranslationsForLibrary will first run checkEverythingIsTranslatedForLibrary`() {
         val result = GradleRunner.create()
             .withProjectDir(tempDir.toFile())

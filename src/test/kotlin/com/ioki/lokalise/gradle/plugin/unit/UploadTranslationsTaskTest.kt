@@ -53,6 +53,18 @@ class UploadTranslationsTaskTest {
     }
 
     @Test
+    fun `tasks has group and description`() {
+        val result = GradleRunner.create()
+            .withProjectDir(tempDir.toFile())
+            .withPluginClasspath()
+            .withArguments("tasks")
+            .build()
+
+        expectThat(result.output).contains("Lokalise")
+        expectThat(result.output).contains("Upload translations to Lokalise")
+    }
+
+    @Test
     fun `UploadTranslationsTask does not call pollUploadProcess when input is set to false`() {
         val buildGradle = Paths.get(tempDir.toString(), "build.gradle.kts")
         buildGradle.writeText(

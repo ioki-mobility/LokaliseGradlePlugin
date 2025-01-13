@@ -80,4 +80,6 @@ internal fun TaskContainer.registerDownloadTranslationTask(
 ) {
     it.lokaliseApiFactory.set(lokaliseApiFactory::createDownloadApi)
     it.params.set(config.params)
+    it.group = "Lokalise"
+    it.description = "Download translations from Lokalise for ${config.name}"
 }

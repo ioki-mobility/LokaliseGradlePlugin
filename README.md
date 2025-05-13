@@ -1,8 +1,8 @@
 # LokaliseGradlePlugin
 
 [![Test Plugin](https://github.com/ioki-mobility/LokaliseGradlePlugin/actions/workflows/test-plugin.yml/badge.svg)](https://github.com/ioki-mobility/LokaliseGradlePlugin/actions/workflows/test-plugin.yml)
-[![Maven Central](https://img.shields.io/maven-central/v/com.ioki.lokalise/lokalise-gradle-plugin?labelColor=%2324292E&color=%233246c8)](https://central.sonatype.com/namespace/com.ioki.lokalise)
-[![Snapshot](https://img.shields.io/nexus/s/com.ioki.lokalise/lokalise-gradle-plugin?labelColor=%2324292E&color=%234f78ff&server=https://s01.oss.sonatype.org)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/ioki/lokalise/)
+[![Maven Central](https://img.shields.io/maven-central/v/com.ioki.lokalise/lokalise-gradle-plugin?labelColor=%2324292E&color=%233246c8)](https://central.sonatype.com/namespace/com.ioki.lokalise)<!-- Disbaled because of:  https://github.com/badges/shields/pull/10997
+[![Snapshot](https://img.shields.io/nexus/s/com.ioki.lokalise/lokalise-gradle-plugin?labelColor=%2324292E&color=%234f78ff&server=https://s01.oss.sonatype.org)](https://s01.oss.sonatype.org/content/repositories/snapshots/com/ioki/lokalise/) -->
 [![MIT](https://img.shields.io/badge/license-MIT-blue.svg?labelColor=%2324292E&color=%23d11064)](https://github.com/ioki-mobility/LokaliseGradlePlugin/blob/main/LICENSE.md)
 
 A Gradle plugin that can up- and downloads strings from [lokalise](https://lokalise.com).
@@ -149,7 +149,7 @@ To use the SNAPSHOT version you have to include the sonatype snapshot repository
 ```kotlin
 pluginManagement {
     repositories {
-        maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/")
+        maven(url = "https://central.sonatype.com/repository/maven-snapshots/")
     }
 }
 ```

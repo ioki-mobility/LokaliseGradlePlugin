@@ -19,4 +19,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Publish to Sonatype Staging
-        run: ./gradlew publishAllPublicationsToSonatypeStagingRepository -PGPG_SIGNING_REQUIRED
+        run: ./gradlew publishAllPublicationsToCentralPortal -PGPG_SIGNING_REQUIRED

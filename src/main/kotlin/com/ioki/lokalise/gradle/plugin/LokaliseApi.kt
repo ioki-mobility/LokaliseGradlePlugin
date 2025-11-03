@@ -1,11 +1,11 @@
 package com.ioki.lokalise.gradle.plugin
 
 import com.ioki.lokalise.api.Lokalise
-import com.ioki.lokalise.api.Result
 import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.api.models.Project
-import com.ioki.lokalise.api.models.Projects
+import com.ioki.result.Result.Failure
+import com.ioki.result.Result.Success
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -73,8 +73,8 @@ internal class DefaultLokaliseApi(
                     )
 
                     when (uploadResult) {
-                        is Result.Failure -> throw GradleException("Can't upload files\n${uploadResult.error.message}")
-                        is Result.Success -> uploadResult.data
+                        is Failure -> throw GradleException("Can't upload files\n${uploadResult.error.message}")
+                        is Success -> uploadResult.data
                     }
                 }
             }
@@ -95,14 +95,14 @@ internal class DefaultLokaliseApi(
                         )
 
                         when (process) {
-                            is Result.Failure -> {
+                            is Failure -> {
                                 if (process.error.code == 404) {
                                     // 404 indicates it is done... I guess :)
                                     break
                                 }
                             }
 
-                            is Result.Success -> {
+                            is Success -> {
                                 val processStatus = process.data.process.status
                                 if (finishedProcessStatus.contains(processStatus)) {
                                     break
@@ -125,15 +125,15 @@ internal class DefaultLokaliseApi(
             bodyParams = params,
         )
         return when (result) {
-            is Result.Failure -> throw GradleException("Can't download files\n${result.error.message}")
-            is Result.Success -> result.data
+            is Failure -> throw GradleException("Can't download files\n${result.error.message}")
+            is Success -> result.data
         }
     }
 
     override suspend fun getProject(): Project {
         return when (val result = lokalise.allProjects()) {
-            is Result.Failure -> throw GradleException("Can't get all project\n${result.error.message}")
-            is Result.Success<Projects> -> result.data.projects.find { it.projectId == projectId }
+            is Failure -> throw GradleException("Can't get all project\n${result.error.message}")
+            is Success -> result.data.projects.find { it.projectId == projectId }
                 ?: throw GradleException("Can't find project with id $projectId")
         }
     }

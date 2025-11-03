@@ -106,7 +106,7 @@ signing {
 }
 
 nmcp {
-    publishAllPublicationsToCentralPortal {
+    centralPortal {
         username = providers.environmentVariable("SONATYPE_USER")
         password = providers.environmentVariable("SONATYPE_PASSWORD")
         publishingType = "USER_MANAGED"

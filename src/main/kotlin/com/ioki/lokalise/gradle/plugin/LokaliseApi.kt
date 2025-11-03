@@ -4,6 +4,7 @@ import com.ioki.lokalise.api.Lokalise
 import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.api.models.Project
+import com.ioki.lokalise.api.models.RetrievedProcess
 import com.ioki.result.Result.Failure
 import com.ioki.result.Result.Success
 import kotlinx.coroutines.async
@@ -39,6 +40,11 @@ interface LokaliseUploadApi {
 
 interface LokaliseDownloadApi {
     suspend fun downloadFiles(
+        format: String,
+        params: Map<String, Any>
+    ): FileDownload
+
+    suspend fun downloadFilesAsync(
         format: String,
         params: Map<String, Any>
     ): FileDownload
@@ -87,31 +93,7 @@ internal class DefaultLokaliseApi(
         val chunkedToSix = fileUploads.chunkedToSix()
         chunkedToSix.forEachIndexed { index, chunkedFileUploads ->
             val deferreds = chunkedFileUploads.map {
-                async {
-                    do {
-                        val process = lokalise.retrieveProcess(
-                            projectId = projectId,
-                            processId = it.process.processId
-                        )
-
-                        when (process) {
-                            is Failure -> {
-                                if (process.error.code == 404) {
-                                    // 404 indicates it is done... I guess :)
-                                    break
-                                }
-                            }
-
-                            is Success -> {
-                                val processStatus = process.data.process.status
-                                if (finishedProcessStatus.contains(processStatus)) {
-                                    break
-                                }
-                            }
-                        }
-                        delay(500)
-                    } while (true)
-                }
+                async { awaitProcess(it.projectId) }
             }
             if (index != chunkedToSix.lastIndex) delay(1000)
             deferreds.awaitAll()
@@ -130,6 +112,27 @@ internal class DefaultLokaliseApi(
         }
     }
 
+    override suspend fun downloadFilesAsync(
+        format: String,
+        params: Map<String, Any>
+    ): FileDownload {
+        val result = lokalise.downloadFilesAsync(
+            projectId = projectId,
+            format = format,
+            bodyParams = params,
+        )
+        return when (result) {
+            is Failure -> throw GradleException("Can't download files\n${result.error.message}")
+            is Success -> {
+                val checkProcess = awaitProcess(result.data.processId) ?: throw GradleException("Can't download files")
+                FileDownload(
+                    projectId = checkProcess.projectId,
+                    bundleUrl = checkProcess.process.downloadUrl,
+                )
+            }
+        }
+    }
+
     override suspend fun getProject(): Project {
         return when (val result = lokalise.allProjects()) {
             is Failure -> throw GradleException("Can't get all project\n${result.error.message}")
@@ -143,6 +146,35 @@ internal class DefaultLokaliseApi(
      * See also [https://lokalise.com/blog/announcing-api-rate-limits/](https://lokalise.com/blog/announcing-api-rate-limits/)
      */
     private fun <T> List<T>.chunkedToSix(): List<List<T>> = chunked(6)
+
+    private suspend fun awaitProcess(processId: String): RetrievedProcess? {
+        var latestProcess = null as RetrievedProcess?
+        do {
+            val processResult = lokalise.retrieveProcess(
+                projectId = projectId,
+                processId = processId
+            )
+
+            when (processResult) {
+                is Failure -> {
+                    if (processResult.error.code == 404) {
+                        // 404 indicates it is done... I guess :)
+                        break
+                    }
+                }
+
+                is Success -> {
+                    latestProcess = processResult.data
+                    val processStatus = latestProcess.process.status
+                    if (finishedProcessStatus.contains(processStatus)) {
+                        break
+                    }
+                }
+            }
+            delay(500)
+        } while (true)
+        return latestProcess
+    }
 }
 
 data class FileInfo(

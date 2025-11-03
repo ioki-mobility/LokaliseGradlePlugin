@@ -21,6 +21,13 @@ abstract class LokaliseExtension(
 
     val pollUploadProcess: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
 
+    /**
+     * Downloads translations "async" via the LokaliseApi.
+     * This should set to `true` if the project contains more than 10.000 key-language pairs.
+     * See also https://developers.lokalise.com/reference/file-download-limitations
+     */
+    val downloadStringsAsynchronously: Property<Boolean> = objects.property(Boolean::class.java).convention(false)
+
     internal val downloadStringsConfigs: NamedDomainObjectContainer<DownloadStringsConfig> =
         objects.domainObjectContainer(DownloadStringsConfig::class.java)
 

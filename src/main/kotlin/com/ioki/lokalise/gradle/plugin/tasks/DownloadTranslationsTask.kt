@@ -13,6 +13,7 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.api.tasks.TaskProvider
@@ -38,6 +39,10 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
     @get:Inject
     abstract val projectLayout: ProjectLayout
 
+    @get:Input
+    @get:Optional
+    abstract val downloadAsync: Property<Boolean>
+
     @TaskAction
     fun f() {
         logger.log(LogLevel.INFO, "Execute downloading files with the following params:\n${params.get()}")
@@ -46,10 +51,18 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
         val newParams = params.get().toMutableMap().apply { remove("format") }
 
         val downloadedFile = runBlocking {
-            lokaliseApiFactory.get().invoke().downloadFiles(
-                format = format.toString(),
-                params = newParams,
-            )
+            val lokaliseApi = lokaliseApiFactory.get()()
+            if (downloadAsync.get()) {
+                lokaliseApi.downloadFilesAsync(
+                    format = format.toString(),
+                    params = newParams,
+                )
+            } else {
+                lokaliseApi.downloadFiles(
+                    format = format.toString(),
+                    params = newParams,
+                )
+            }
         }
         val bundleUrl = downloadedFile.bundleUrl
 
@@ -73,6 +86,7 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
 
 internal fun TaskContainer.registerDownloadTranslationTask(
     lokaliseApiFactory: LokaliseApiFactory,
+    downloadAsync: Property<Boolean>,
     config: DownloadStringsConfig,
 ): TaskProvider<DownloadTranslationsTask> = register(
     "downloadTranslationsFor${config.name.replaceFirstChar { it.titlecase() }}",
@@ -80,6 +94,7 @@ internal fun TaskContainer.registerDownloadTranslationTask(
 ) {
     it.lokaliseApiFactory.set(lokaliseApiFactory::createDownloadApi)
     it.params.set(config.params)
+    it.downloadAsync.set(downloadAsync)
     it.group = "Lokalise"
     it.description = "Download translations from Lokalise for ${config.name}"
 }

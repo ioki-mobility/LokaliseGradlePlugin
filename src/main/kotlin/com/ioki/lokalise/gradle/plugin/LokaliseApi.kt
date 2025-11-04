@@ -1,8 +1,10 @@
 package com.ioki.lokalise.gradle.plugin
 
 import com.ioki.lokalise.api.Lokalise
+import com.ioki.lokalise.api.models.AsyncExportDetails
 import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
+import com.ioki.lokalise.api.models.Process
 import com.ioki.lokalise.api.models.Project
 import com.ioki.lokalise.api.models.RetrievedProcess
 import com.ioki.result.Result.Failure
@@ -18,14 +20,11 @@ class LokaliseApiFactory(
     private val apiTokenProvider: Provider<String>,
     private val projectIdProvider: Provider<String>,
 ) {
-    fun createUploadApi(): LokaliseUploadApi =
-        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
-
-    fun createDownloadApi(): LokaliseDownloadApi =
-        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
-
-    fun createProjectApi(): LokaliseProjectApi =
-        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+    fun createUploadApi(): LokaliseUploadApi = createLokaliseApi()
+    fun createDownloadApi(): LokaliseDownloadApi = createLokaliseApi()
+    fun createProjectApi(): LokaliseProjectApi = createLokaliseApi()
+    private fun createLokaliseApi(): DefaultLokaliseApi =
+        DefaultLokaliseApi(Lokalise(apiTokenProvider.get(), false), projectIdProvider.get())
 }
 
 interface LokaliseUploadApi {
@@ -92,9 +91,7 @@ internal class DefaultLokaliseApi(
     override suspend fun checkProcess(fileUploads: List<FileUpload>) = coroutineScope {
         val chunkedToSix = fileUploads.chunkedToSix()
         chunkedToSix.forEachIndexed { index, chunkedFileUploads ->
-            val deferreds = chunkedFileUploads.map {
-                async { awaitProcess(it.projectId) }
-            }
+            val deferreds = chunkedFileUploads.map { async { awaitProcess(it.projectId) } }
             if (index != chunkedToSix.lastIndex) delay(1000)
             deferreds.awaitAll()
         }
@@ -125,9 +122,13 @@ internal class DefaultLokaliseApi(
             is Failure -> throw GradleException("Can't download files\n${result.error.message}")
             is Success -> {
                 val checkProcess = awaitProcess(result.data.processId) ?: throw GradleException("Can't download files")
+                val asyncExportProcess = checkProcess.process as? Process.AsyncExport
+                val asyncExportDetailsFinished = asyncExportProcess?.details as? AsyncExportDetails.Finished
+                val downloadUrl = asyncExportDetailsFinished?.downloadUrl
+                    ?: throw GradleException("Can't download files, no download URL found")
                 FileDownload(
-                    projectId = checkProcess.projectId,
-                    bundleUrl = checkProcess.process.downloadUrl,
+                    projectId = projectId,
+                    bundleUrl = downloadUrl,
                 )
             }
         }

@@ -5,6 +5,8 @@ import com.ioki.lokalise.api.models.Error
 import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileDownloadAsync
 import com.ioki.lokalise.api.models.FileUpload
+import com.ioki.lokalise.api.models.FileUploadDetails
+import com.ioki.lokalise.api.models.Process
 import com.ioki.lokalise.api.models.Project
 import com.ioki.lokalise.api.models.Projects
 import com.ioki.lokalise.api.models.RetrievedProcess
@@ -269,7 +271,6 @@ private fun createFileInfo(
 )
 
 private fun createRetrieveProcess(
-    projectId: String = "",
     processId: String = "",
     status: String = "",
     type: String = "",
@@ -277,10 +278,9 @@ private fun createRetrieveProcess(
     createdBy: Int = 0,
     createdByEmail: String = "",
     createdAt: String = "",
-    createdAtTimestamp: Int = 0
+    createdAtTimestamp: Long = 0
 ): RetrievedProcess = RetrievedProcess(
-    projectId = projectId,
-    process = RetrievedProcess.Process(
+    process = Process.FileUpload(
         processId = processId,
         status = status,
         type = type,
@@ -289,10 +289,9 @@ private fun createRetrieveProcess(
         createdByEmail = createdByEmail,
         createdAt = createdAt,
         createdAtTimestamp = createdAtTimestamp,
-        details = RetrievedProcess.Process.Details(
+        details = FileUploadDetails(
             emptyList()
         ),
-        downloadUrl = ""
     )
 )
 

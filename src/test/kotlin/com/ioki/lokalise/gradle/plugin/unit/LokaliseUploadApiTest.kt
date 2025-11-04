@@ -335,7 +335,7 @@ private open class FakeLokalise : Lokalise {
         format: String,
         bodyParams: Map<String, Any>
     ): Result<FileDownloadAsync, Error> {
-        TODO("Not yet implemented")
+        error("Not overriden")
     }
 
     override suspend fun retrieveProcess(projectId: String, processId: String): Result<RetrievedProcess, Error> {

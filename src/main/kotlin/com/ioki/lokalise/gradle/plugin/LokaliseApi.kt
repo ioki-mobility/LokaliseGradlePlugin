@@ -1,11 +1,14 @@
 package com.ioki.lokalise.gradle.plugin
 
 import com.ioki.lokalise.api.Lokalise
-import com.ioki.lokalise.api.Result
+import com.ioki.lokalise.api.models.AsyncExportDetails
 import com.ioki.lokalise.api.models.FileDownload
 import com.ioki.lokalise.api.models.FileUpload
+import com.ioki.lokalise.api.models.Process
 import com.ioki.lokalise.api.models.Project
-import com.ioki.lokalise.api.models.Projects
+import com.ioki.lokalise.api.models.RetrievedProcess
+import com.ioki.result.Result.Failure
+import com.ioki.result.Result.Success
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -17,14 +20,11 @@ class LokaliseApiFactory(
     private val apiTokenProvider: Provider<String>,
     private val projectIdProvider: Provider<String>,
 ) {
-    fun createUploadApi(): LokaliseUploadApi =
-        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
-
-    fun createDownloadApi(): LokaliseDownloadApi =
-        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
-
-    fun createProjectApi(): LokaliseProjectApi =
-        DefaultLokaliseApi(Lokalise(apiTokenProvider.get()), projectIdProvider.get())
+    fun createUploadApi(): LokaliseUploadApi = createLokaliseApi()
+    fun createDownloadApi(): LokaliseDownloadApi = createLokaliseApi()
+    fun createProjectApi(): LokaliseProjectApi = createLokaliseApi()
+    private fun createLokaliseApi(): DefaultLokaliseApi =
+        DefaultLokaliseApi(Lokalise(apiTokenProvider.get(), false), projectIdProvider.get())
 }
 
 interface LokaliseUploadApi {
@@ -39,6 +39,11 @@ interface LokaliseUploadApi {
 
 interface LokaliseDownloadApi {
     suspend fun downloadFiles(
+        format: String,
+        params: Map<String, Any>
+    ): FileDownload
+
+    suspend fun downloadFilesAsync(
         format: String,
         params: Map<String, Any>
     ): FileDownload
@@ -73,8 +78,8 @@ internal class DefaultLokaliseApi(
                     )
 
                     when (uploadResult) {
-                        is Result.Failure -> throw GradleException("Can't upload files\n${uploadResult.error.message}")
-                        is Result.Success -> uploadResult.data
+                        is Failure -> throw GradleException("Can't upload files\n${uploadResult.error.message}")
+                        is Success -> uploadResult.data
                     }
                 }
             }
@@ -86,33 +91,7 @@ internal class DefaultLokaliseApi(
     override suspend fun checkProcess(fileUploads: List<FileUpload>) = coroutineScope {
         val chunkedToSix = fileUploads.chunkedToSix()
         chunkedToSix.forEachIndexed { index, chunkedFileUploads ->
-            val deferreds = chunkedFileUploads.map {
-                async {
-                    do {
-                        val process = lokalise.retrieveProcess(
-                            projectId = projectId,
-                            processId = it.process.processId
-                        )
-
-                        when (process) {
-                            is Result.Failure -> {
-                                if (process.error.code == 404) {
-                                    // 404 indicates it is done... I guess :)
-                                    break
-                                }
-                            }
-
-                            is Result.Success -> {
-                                val processStatus = process.data.process.status
-                                if (finishedProcessStatus.contains(processStatus)) {
-                                    break
-                                }
-                            }
-                        }
-                        delay(500)
-                    } while (true)
-                }
-            }
+            val deferreds = chunkedFileUploads.map { async { awaitProcess(it.projectId) } }
             if (index != chunkedToSix.lastIndex) delay(1000)
             deferreds.awaitAll()
         }
@@ -125,15 +104,40 @@ internal class DefaultLokaliseApi(
             bodyParams = params,
         )
         return when (result) {
-            is Result.Failure -> throw GradleException("Can't download files\n${result.error.message}")
-            is Result.Success -> result.data
+            is Failure -> throw GradleException("Can't download files\n${result.error.message}")
+            is Success -> result.data
+        }
+    }
+
+    override suspend fun downloadFilesAsync(
+        format: String,
+        params: Map<String, Any>
+    ): FileDownload {
+        val result = lokalise.downloadFilesAsync(
+            projectId = projectId,
+            format = format,
+            bodyParams = params,
+        )
+        return when (result) {
+            is Failure -> throw GradleException("Can't download files\n${result.error.message}")
+            is Success -> {
+                val checkProcess = awaitProcess(result.data.processId) ?: throw GradleException("Can't download files")
+                val asyncExportProcess = checkProcess.process as? Process.AsyncExport
+                val asyncExportDetailsFinished = asyncExportProcess?.details as? AsyncExportDetails.Finished
+                val downloadUrl = asyncExportDetailsFinished?.downloadUrl
+                    ?: throw GradleException("Can't download files, no download URL found")
+                FileDownload(
+                    projectId = projectId,
+                    bundleUrl = downloadUrl,
+                )
+            }
         }
     }
 
     override suspend fun getProject(): Project {
         return when (val result = lokalise.allProjects()) {
-            is Result.Failure -> throw GradleException("Can't get all project\n${result.error.message}")
-            is Result.Success<Projects> -> result.data.projects.find { it.projectId == projectId }
+            is Failure -> throw GradleException("Can't get all project\n${result.error.message}")
+            is Success -> result.data.projects.find { it.projectId == projectId }
                 ?: throw GradleException("Can't find project with id $projectId")
         }
     }
@@ -143,6 +147,35 @@ internal class DefaultLokaliseApi(
      * See also [https://lokalise.com/blog/announcing-api-rate-limits/](https://lokalise.com/blog/announcing-api-rate-limits/)
      */
     private fun <T> List<T>.chunkedToSix(): List<List<T>> = chunked(6)
+
+    private suspend fun awaitProcess(processId: String): RetrievedProcess? {
+        var latestProcess = null as RetrievedProcess?
+        do {
+            val processResult = lokalise.retrieveProcess(
+                projectId = projectId,
+                processId = processId
+            )
+
+            when (processResult) {
+                is Failure -> {
+                    if (processResult.error.code == 404) {
+                        // 404 indicates it is done... I guess :)
+                        break
+                    }
+                }
+
+                is Success -> {
+                    latestProcess = processResult.data
+                    val processStatus = latestProcess.process.status
+                    if (finishedProcessStatus.contains(processStatus)) {
+                        break
+                    }
+                }
+            }
+            delay(500)
+        } while (true)
+        return latestProcess
+    }
 }
 
 data class FileInfo(

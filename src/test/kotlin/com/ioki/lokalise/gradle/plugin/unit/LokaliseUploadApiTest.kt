@@ -1,13 +1,18 @@
 package com.ioki.lokalise.gradle.plugin.unit
 
 import com.ioki.lokalise.api.Lokalise
-import com.ioki.lokalise.api.Result
+import com.ioki.lokalise.api.models.Error
 import com.ioki.lokalise.api.models.FileDownload
+import com.ioki.lokalise.api.models.FileDownloadAsync
 import com.ioki.lokalise.api.models.FileUpload
+import com.ioki.lokalise.api.models.FileUploadDetails
+import com.ioki.lokalise.api.models.Process
+import com.ioki.lokalise.api.models.Project
 import com.ioki.lokalise.api.models.Projects
 import com.ioki.lokalise.api.models.RetrievedProcess
 import com.ioki.lokalise.gradle.plugin.DefaultLokaliseApi
 import com.ioki.lokalise.gradle.plugin.FileInfo
+import com.ioki.result.Result
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.currentTime
@@ -266,7 +271,6 @@ private fun createFileInfo(
 )
 
 private fun createRetrieveProcess(
-    projectId: String = "",
     processId: String = "",
     status: String = "",
     type: String = "",
@@ -274,10 +278,9 @@ private fun createRetrieveProcess(
     createdBy: Int = 0,
     createdByEmail: String = "",
     createdAt: String = "",
-    createdAtTimestamp: Int = 0
+    createdAtTimestamp: Long = 0
 ): RetrievedProcess = RetrievedProcess(
-    projectId = projectId,
-    process = RetrievedProcess.Process(
+    process = Process.FileUpload(
         processId = processId,
         status = status,
         type = type,
@@ -286,15 +289,15 @@ private fun createRetrieveProcess(
         createdByEmail = createdByEmail,
         createdAt = createdAt,
         createdAtTimestamp = createdAtTimestamp,
-        details = RetrievedProcess.Process.Details(
+        details = FileUploadDetails(
             emptyList()
-        )
+        ),
     )
 )
 
 private fun createLokalise(
-    uploadFileResult: suspend () -> Result<FileUpload> = { Result.Success(createFileUpload()) },
-    retrieveProcessResult: suspend () -> Result<RetrievedProcess> = { Result.Success(createRetrieveProcess(status = "finished")) }
+    uploadFileResult: suspend () -> Result<FileUpload, Error> = { Result.Success(createFileUpload()) },
+    retrieveProcessResult: suspend () -> Result<RetrievedProcess, Error> = { Result.Success(createRetrieveProcess(status = "finished")) }
 ): Lokalise = object : FakeLokalise() {
     override suspend fun uploadFile(
         projectId: String,
@@ -302,16 +305,20 @@ private fun createLokalise(
         filename: String,
         langIso: String,
         bodyParams: Map<String, Any>
-    ): Result<FileUpload> = uploadFileResult()
+    ): Result<FileUpload, Error> = uploadFileResult()
 
     override suspend fun retrieveProcess(
         projectId: String,
         processId: String
-    ): Result<RetrievedProcess> = retrieveProcessResult()
+    ): Result<RetrievedProcess, Error> = retrieveProcessResult()
 }
 
 private open class FakeLokalise : Lokalise {
-    override suspend fun allProjects(queryParams: Map<String, Any>): Result<Projects> {
+    override suspend fun retrieveProject(projectId: String): Result<Project, Error> {
+        error("Not overriden")
+    }
+
+    override suspend fun allProjects(queryParams: Map<String, Any>): Result<Projects, Error> {
         error("Not overriden")
     }
 
@@ -319,11 +326,19 @@ private open class FakeLokalise : Lokalise {
         projectId: String,
         format: String,
         bodyParams: Map<String, Any>
-    ): Result<FileDownload> {
+    ): Result<FileDownload, Error> {
         error("Not overriden")
     }
 
-    override suspend fun retrieveProcess(projectId: String, processId: String): Result<RetrievedProcess> {
+    override suspend fun downloadFilesAsync(
+        projectId: String,
+        format: String,
+        bodyParams: Map<String, Any>
+    ): Result<FileDownloadAsync, Error> {
+        error("Not overriden")
+    }
+
+    override suspend fun retrieveProcess(projectId: String, processId: String): Result<RetrievedProcess, Error> {
         error("Not overriden")
     }
 
@@ -333,7 +348,7 @@ private open class FakeLokalise : Lokalise {
         filename: String,
         langIso: String,
         bodyParams: Map<String, Any>
-    ): Result<FileUpload> {
+    ): Result<FileUpload, Error> {
         error("Not overriden")
     }
 }

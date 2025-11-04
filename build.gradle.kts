@@ -9,7 +9,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven(url = "https://central.sonatype.com/repository/maven-snapshots/")
 }
 
 dependencies {

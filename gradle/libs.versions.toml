@@ -13,4 +13,4 @@ test-kotlinCoroutinesTest = { module = "org.jetbrains.kotlinx:kotlinx-coroutines
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlinVersion" }
 dokka = "org.jetbrains.dokka:2.1.0"
-nmcp = "com.gradleup.nmcp:1.2.0"
+nmcp = "com.gradleup.nmcp:1.3.0"

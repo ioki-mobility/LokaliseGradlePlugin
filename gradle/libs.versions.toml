@@ -1,6 +1,6 @@
 [versions]
 kotlinVersion = "2.4.10"
-kotlinxCoroutinesVersion = "1.10.2"
+kotlinxCoroutinesVersion = "1.11.0"
 
 [libraries]
 lokaliseApi = "com.ioki:lokalise-api:0.1.0"

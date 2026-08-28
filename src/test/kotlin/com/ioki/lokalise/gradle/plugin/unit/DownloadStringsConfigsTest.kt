@@ -25,8 +25,6 @@ class DownloadStringsConfigsTest {
 
         buildGradle.writeText(
             """
-            import com.ioki.lokalise.api.models.DownloadFilesRequest
-
             plugins {
                 id("com.ioki.lokalise")
             }
@@ -36,34 +34,26 @@ class DownloadStringsConfigsTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 downloadStringsConfigs {
                     register("library") {
-                        requestBody.set(
-                            DownloadFilesRequest(
-                                format = "xml",
-                                filterLangs = listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
-                                exportEmptyAs = "skip",
-                                includeDescription = false,
-                                exportSort = "first_added",
-                                directoryPrefix = ".",
-                                filterFilenames = listOf("./src/main/res/values-%LANG_ISO%/strings.xml"),
-                                indentation = "4sp",
-                                replaceBreaks = false,
-                            )
-                        )
+                        format.set("xml")
+                        filterLangs.set(listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"))
+                        exportEmptyAs.set("skip")
+                        includeDescription.set(false)
+                        exportSort.set("first_added")
+                        directoryPrefix.set(".")
+                        filterFilenames.set(listOf("./src/main/res/values-%LANG_ISO%/strings.xml"))
+                        indentation.set("4sp")
+                        replaceBreaks.set(false)
                     }
                     register("flavor") {
-                        requestBody.set(
-                            DownloadFilesRequest(
-                                format = "xml",
-                                filterLangs = listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
-                                exportEmptyAs = "skip",
-                                includeDescription = false,
-                                exportSort = "first_added",
-                                directoryPrefix = ".",
-                                filterFilenames = listOf("./src/${"$"}{findProperty("flavor")}/res/values-%LANG_ISO%/strings.xml"),
-                                indentation = "4sp",
-                                replaceBreaks = false,
-                            )
-                        )
+                        format.set("xml")
+                        filterLangs.set(listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"))
+                        exportEmptyAs.set("skip")
+                        includeDescription.set(false)
+                        exportSort.set("first_added")
+                        directoryPrefix.set(".")
+                        filterFilenames.set(listOf("./src/${"$"}{findProperty("flavor")}/res/values-%LANG_ISO%/strings.xml"))
+                        indentation.set("4sp")
+                        replaceBreaks.set(false)
                     }
                 }
             }

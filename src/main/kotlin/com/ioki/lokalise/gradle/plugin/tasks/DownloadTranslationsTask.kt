@@ -84,7 +84,7 @@ internal fun TaskContainer.registerDownloadTranslationTask(
     DownloadTranslationsTask::class.java
 ) {
     it.lokaliseApiFactory.set(lokaliseApiFactory::createDownloadApi)
-    it.requestBody.set(config.requestBody)
+    it.requestBody.set(it.project.provider { config.toRequestBody() })
     it.downloadAsync.set(downloadAsync)
     it.group = "Lokalise"
     it.description = "Download translations from Lokalise for ${config.name}"

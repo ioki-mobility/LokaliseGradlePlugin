@@ -26,8 +26,6 @@ class UploadTranslationsTaskTest {
 
         buildGradle.writeText(
             """
-            import com.ioki.lokalise.api.models.UploadFileRequest
-
             plugins {
                 id("com.ioki.lokalise")
             }
@@ -42,16 +40,10 @@ class UploadTranslationsTaskTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 uploadStringsConfig {
                     translationsFilesToUpload.set(filesToUpload)
-                    requestBody.set(
-                        UploadFileRequest(
-                            data = "",
-                            filename = "",
-                            langIso = "en_BZ",
-                            replaceModified = true,
-                            cleanupMode = true,
-                            distinguishByFile = true,
-                        )
-                    )
+                    langIso.set("en_BZ")
+                    replaceModified.set(true)
+                    cleanupMode.set(true)
+                    distinguishByFile.set(true)
                 }
             }
         """.trimIndent()

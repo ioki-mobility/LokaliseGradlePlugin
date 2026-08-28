@@ -82,7 +82,7 @@ internal fun TaskContainer.registerUploadTranslationTask(
     it.lokaliseApiFactory.set(lokaliseApiFactory::createUploadApi)
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
     it.pollUploadProcess.set(lokaliseExtensions.pollUploadProcess)
-    it.requestBody.set(lokaliseExtensions.uploadStringsConfig.requestBody)
+    it.requestBody.set(it.project.provider { lokaliseExtensions.uploadStringsConfig.toRequestBody() })
     it.group = "Lokalise"
     it.description = "Upload translations to Lokalise"
 }

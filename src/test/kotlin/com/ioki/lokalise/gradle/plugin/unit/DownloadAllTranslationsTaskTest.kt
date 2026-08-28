@@ -21,6 +21,8 @@ class DownloadAllTranslationsTaskTest {
 
         buildGradle.writeText(
             """
+            import com.ioki.lokalise.api.models.DownloadFilesRequest
+
             plugins {
                 id("com.ioki.lokalise")
             }
@@ -30,15 +32,19 @@ class DownloadAllTranslationsTaskTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 downloadStringsConfigs {
                     register("main") {
-                        params(
-                            "--format" to "xml",
-                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
+                        requestBody.set(
+                            DownloadFilesRequest(
+                                format = "xml",
+                                filterLangs = listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
+                            )
                         )
                     }
                     register("spanishOnly") {
-                        params(
-                            "--format" to "xml",
-                            "--filter-langs" to listOf("es"),
+                        requestBody.set(
+                            DownloadFilesRequest(
+                                format = "xml",
+                                filterLangs = listOf("es"),
+                            )
                         )
                     }
                 }

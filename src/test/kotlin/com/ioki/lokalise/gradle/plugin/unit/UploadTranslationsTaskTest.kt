@@ -26,6 +26,8 @@ class UploadTranslationsTaskTest {
 
         buildGradle.writeText(
             """
+            import com.ioki.lokalise.api.models.UploadFileRequest
+
             plugins {
                 id("com.ioki.lokalise")
             }
@@ -40,11 +42,15 @@ class UploadTranslationsTaskTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 uploadStringsConfig {
                     translationsFilesToUpload.set(filesToUpload)
-                    params(
-                        "replace_modified" to true,
-                        "cleanup_mode" to true,
-                        "distinguish_by_file" to true,
-                        "lang_iso" to "en_BZ",
+                    requestBody.set(
+                        UploadFileRequest(
+                            data = "",
+                            filename = "",
+                            langIso = "en_BZ",
+                            replaceModified = true,
+                            cleanupMode = true,
+                            distinguishByFile = true,
+                        )
                     )
                 }
             }
@@ -80,10 +86,9 @@ class UploadTranslationsTaskTest {
             val fakeLokaliseApi: LokaliseUploadApi = object : LokaliseUploadApi {
                 override suspend fun uploadFiles(
                     fileInfos: List<FileInfo>,
-                    langIso: String,
-                    params: Map<String, Any>
-                ): List<FileUpload> {
-                    val process = FileUpload.Process(
+                    requestBody: UploadFileRequest,
+                ): List<UploadFileResponse> {
+                    val process = UploadFileResponse.Process(
                         "procId",
                         "type",
                         "status",
@@ -93,10 +98,10 @@ class UploadTranslationsTaskTest {
                         "at",
                         1
                     )
-                    return listOf(FileUpload("projId", process))
+                    return listOf(UploadFileResponse("projId", process))
                 }
 
-                override suspend fun checkProcess(fileUploads: List<FileUpload>) {
+                override suspend fun checkProcess(fileUploads: List<UploadFileResponse>) {
                     error("Was called but shouldn't be")
                 }
             }
@@ -109,7 +114,7 @@ class UploadTranslationsTaskTest {
                         include("settings.gradle")
                     }
                 })
-                params.set(objects.mapProperty<String, Any>().convention(mapOf("lang_iso" to "en"))) 
+                requestBody.set(UploadFileRequest(data = "", filename = "", langIso = "en"))
                 pollUploadProcess.set(false)
             }
             """.trimIndent()
@@ -156,8 +161,8 @@ class UploadTranslationsTaskTest {
             .withArguments("uploadTranslations", "--info")
             .buildAndFail()
 
-        expectThat(result.output).contains("replace_modified=true")
-        expectThat(result.output).contains("cleanup_mode=true")
+        expectThat(result.output).contains("replaceModified=true")
+        expectThat(result.output).contains("cleanupMode=true")
         expectThat(result.output).contains("Invalid `X-Api-Token`")
     }
 

@@ -1,5 +1,6 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
+import com.ioki.lokalise.api.models.DownloadFilesRequest
 import com.ioki.lokalise.gradle.plugin.DownloadStringsConfig
 import com.ioki.lokalise.gradle.plugin.LokaliseApiFactory
 import com.ioki.lokalise.gradle.plugin.LokaliseDownloadApi
@@ -10,7 +11,6 @@ import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RelativePath
 import org.gradle.api.logging.LogLevel
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -28,7 +28,7 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
     abstract val lokaliseApiFactory: Property<() -> LokaliseDownloadApi>
 
     @get:Input
-    abstract val params: MapProperty<String, Any>
+    abstract val requestBody: Property<DownloadFilesRequest>
 
     @get:Inject
     abstract val archiveOperations: ArchiveOperations
@@ -45,23 +45,14 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
 
     @TaskAction
     fun f() {
-        logger.log(LogLevel.INFO, "Execute downloading files with the following params:\n${params.get()}")
-
-        val format = params.get()["format"]
-        val newParams = params.get().toMutableMap().apply { remove("format") }
+        logger.log(LogLevel.INFO, "Execute downloading files with the following request body:\n${requestBody.get()}")
 
         val downloadedFile = runBlocking {
             val lokaliseApi = lokaliseApiFactory.get()()
             if (downloadAsync.get()) {
-                lokaliseApi.downloadFilesAsync(
-                    format = format.toString(),
-                    params = newParams,
-                )
+                lokaliseApi.downloadFilesAsync(requestBody.get())
             } else {
-                lokaliseApi.downloadFiles(
-                    format = format.toString(),
-                    params = newParams,
-                )
+                lokaliseApi.downloadFiles(requestBody.get())
             }
         }
         val bundleUrl = downloadedFile.bundleUrl
@@ -93,7 +84,7 @@ internal fun TaskContainer.registerDownloadTranslationTask(
     DownloadTranslationsTask::class.java
 ) {
     it.lokaliseApiFactory.set(lokaliseApiFactory::createDownloadApi)
-    it.params.set(config.params)
+    it.requestBody.set(config.requestBody)
     it.downloadAsync.set(downloadAsync)
     it.group = "Lokalise"
     it.description = "Download translations from Lokalise for ${config.name}"

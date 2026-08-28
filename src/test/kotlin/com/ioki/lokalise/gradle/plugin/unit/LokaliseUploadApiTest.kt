@@ -1,15 +1,18 @@
 package com.ioki.lokalise.gradle.plugin.unit
 
 import com.ioki.lokalise.api.Lokalise
+import com.ioki.lokalise.api.models.AllProjectsRequest
+import com.ioki.lokalise.api.models.AllProjectsResponse
+import com.ioki.lokalise.api.models.DownloadFilesAsyncResponse
+import com.ioki.lokalise.api.models.DownloadFilesRequest
+import com.ioki.lokalise.api.models.DownloadFilesResponse
 import com.ioki.lokalise.api.models.Error
-import com.ioki.lokalise.api.models.FileDownload
-import com.ioki.lokalise.api.models.FileDownloadAsync
-import com.ioki.lokalise.api.models.FileUpload
 import com.ioki.lokalise.api.models.FileUploadDetails
 import com.ioki.lokalise.api.models.Process
-import com.ioki.lokalise.api.models.Project
-import com.ioki.lokalise.api.models.Projects
-import com.ioki.lokalise.api.models.RetrievedProcess
+import com.ioki.lokalise.api.models.RetrieveProcessResponse
+import com.ioki.lokalise.api.models.RetrieveProjectResponse
+import com.ioki.lokalise.api.models.UploadFileRequest
+import com.ioki.lokalise.api.models.UploadFileResponse
 import com.ioki.lokalise.gradle.plugin.DefaultLokaliseApi
 import com.ioki.lokalise.gradle.plugin.FileInfo
 import com.ioki.result.Result
@@ -35,8 +38,7 @@ class LokaliseUploadApiTest {
                 fileInfos = mutableListOf<FileInfo>().apply {
                     repeat(it) { add(createFileInfo()) }
                 },
-                langIso = "langIso",
-                params = mapOf(),
+                requestBody = createUploadFileRequest(),
             )
             expectThat(currentTime).isEqualTo(0)
         }
@@ -54,8 +56,7 @@ class LokaliseUploadApiTest {
                 fileInfos = mutableListOf<FileInfo>().apply {
                     repeat(it) { add(createFileInfo()) }
                 },
-                langIso = "langIso",
-                params = mapOf(),
+                requestBody = createUploadFileRequest(),
             )
             expectedTime += 1000
             expectThat(currentTime).isEqualTo(expectedTime)
@@ -74,8 +75,7 @@ class LokaliseUploadApiTest {
                 fileInfos = mutableListOf<FileInfo>().apply {
                     repeat(it) { add(createFileInfo()) }
                 },
-                langIso = "langIso",
-                params = mapOf(),
+                requestBody = createUploadFileRequest(),
             )
             expectedTime += 2000
             expectThat(currentTime).isEqualTo(expectedTime)
@@ -87,7 +87,7 @@ class LokaliseUploadApiTest {
         val lokalise = createLokalise(
             uploadFileResult = {
                 delay(1200)
-                Result.Success(createFileUpload())
+                Result.Success(createUploadFileResponse())
             }
         )
         val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
@@ -97,8 +97,7 @@ class LokaliseUploadApiTest {
             fileInfos = mutableListOf<FileInfo>().apply {
                 repeat(5) { add(createFileInfo()) }
             },
-            langIso = "langIso",
-            params = mapOf(),
+            requestBody = createUploadFileRequest(),
         )
         expectThat(currentTime).isEqualTo(1200)
     }
@@ -109,7 +108,7 @@ class LokaliseUploadApiTest {
             val lokalise = createLokalise(
                 uploadFileResult = {
                     delay(700)
-                    Result.Success(createFileUpload())
+                    Result.Success(createUploadFileResponse())
                 }
             )
             val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
@@ -119,8 +118,7 @@ class LokaliseUploadApiTest {
                 fileInfos = mutableListOf<FileInfo>().apply {
                     repeat(7) { add(createFileInfo()) }
                 },
-                langIso = "langIso",
-                params = mapOf(),
+                requestBody = createUploadFileRequest(),
             )
             expectThat(currentTime).isEqualTo(1700)
         }
@@ -133,8 +131,8 @@ class LokaliseUploadApiTest {
         (0..6).forEach {
             expectThat(currentTime).isEqualTo(0)
             lokaliseApi.checkProcess(
-                fileUploads = mutableListOf<FileUpload>().apply {
-                    repeat(it) { add(createFileUpload()) }
+                fileUploads = mutableListOf<UploadFileResponse>().apply {
+                    repeat(it) { add(createUploadFileResponse()) }
                 },
             )
             expectThat(currentTime).isEqualTo(0)
@@ -150,8 +148,8 @@ class LokaliseUploadApiTest {
         (7..12).forEach {
             expectThat(currentTime).isEqualTo(expectedTime)
             lokaliseApi.checkProcess(
-                fileUploads = mutableListOf<FileUpload>().apply {
-                    repeat(it) { add(createFileUpload()) }
+                fileUploads = mutableListOf<UploadFileResponse>().apply {
+                    repeat(it) { add(createUploadFileResponse()) }
                 },
             )
             expectedTime += 1000
@@ -168,8 +166,8 @@ class LokaliseUploadApiTest {
         (13..18).forEach {
             expectThat(currentTime).isEqualTo(expectedTime)
             lokaliseApi.checkProcess(
-                fileUploads = mutableListOf<FileUpload>().apply {
-                    repeat(it) { add(createFileUpload()) }
+                fileUploads = mutableListOf<UploadFileResponse>().apply {
+                    repeat(it) { add(createUploadFileResponse()) }
                 },
             )
             expectedTime += 2000
@@ -182,15 +180,15 @@ class LokaliseUploadApiTest {
         val lokalise = createLokalise(
             retrieveProcessResult = {
                 delay(1200)
-                Result.Success(createRetrieveProcess(status = "finished"))
+                Result.Success(createRetrieveProcessResponse(status = "finished"))
             }
         )
         val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         expectThat(currentTime).isEqualTo(0L)
         lokaliseApi.checkProcess(
-            fileUploads = mutableListOf<FileUpload>().apply {
-                repeat(5) { add(createFileUpload()) }
+            fileUploads = mutableListOf<UploadFileResponse>().apply {
+                repeat(5) { add(createUploadFileResponse()) }
             },
         )
         expectThat(currentTime).isEqualTo(1200)
@@ -202,15 +200,15 @@ class LokaliseUploadApiTest {
             val lokalise = createLokalise(
                 retrieveProcessResult = {
                     delay(700)
-                    Result.Success(createRetrieveProcess(status = "finished"))
+                    Result.Success(createRetrieveProcessResponse(status = "finished"))
                 }
             )
             val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
             expectThat(currentTime).isEqualTo(0L)
             lokaliseApi.checkProcess(
-                fileUploads = mutableListOf<FileUpload>().apply {
-                    repeat(7) { add(createFileUpload()) }
+                fileUploads = mutableListOf<UploadFileResponse>().apply {
+                    repeat(7) { add(createUploadFileResponse()) }
                 },
             )
             expectThat(currentTime).isEqualTo(1700)
@@ -223,22 +221,32 @@ class LokaliseUploadApiTest {
             retrieveProcessResult = {
                 timesCheckProcess += 1
                 val status = if (timesCheckProcess > 3) "finished" else "notFinished"
-                Result.Success(createRetrieveProcess(status = status))
+                Result.Success(createRetrieveProcessResponse(status = status))
             }
         )
         val lokaliseApi = DefaultLokaliseApi(lokalise, "projectId")
 
         expectThat(currentTime).isEqualTo(0L)
         lokaliseApi.checkProcess(
-            fileUploads = mutableListOf<FileUpload>().apply {
-                repeat(1) { add(createFileUpload()) }
+            fileUploads = mutableListOf<UploadFileResponse>().apply {
+                repeat(1) { add(createUploadFileResponse()) }
             },
         )
         expectThat(currentTime).isEqualTo(1500)
     }
 }
 
-private fun createFileUpload(
+private fun createUploadFileRequest(
+    data: String = "",
+    filename: String = "",
+    langIso: String = "langIso",
+): UploadFileRequest = UploadFileRequest(
+    data = data,
+    filename = filename,
+    langIso = langIso,
+)
+
+private fun createUploadFileResponse(
     projectId: String = "",
     processId: String = "",
     status: String = "",
@@ -248,9 +256,9 @@ private fun createFileUpload(
     createdByEmail: String = "",
     createdAt: String = "",
     createdAtTimestamp: Int = 0
-): FileUpload = FileUpload(
+): UploadFileResponse = UploadFileResponse(
     projectId = projectId,
-    process = FileUpload.Process(
+    process = UploadFileResponse.Process(
         processId = processId,
         status = status,
         type = type,
@@ -270,7 +278,7 @@ private fun createFileInfo(
     base64FileContent = base64FileContent
 )
 
-private fun createRetrieveProcess(
+private fun createRetrieveProcessResponse(
     processId: String = "",
     status: String = "",
     type: String = "",
@@ -279,7 +287,7 @@ private fun createRetrieveProcess(
     createdByEmail: String = "",
     createdAt: String = "",
     createdAtTimestamp: Long = 0
-): RetrievedProcess = RetrievedProcess(
+): RetrieveProcessResponse = RetrieveProcessResponse(
     process = Process.FileUpload(
         processId = processId,
         status = status,
@@ -296,59 +304,52 @@ private fun createRetrieveProcess(
 )
 
 private fun createLokalise(
-    uploadFileResult: suspend () -> Result<FileUpload, Error> = { Result.Success(createFileUpload()) },
-    retrieveProcessResult: suspend () -> Result<RetrievedProcess, Error> = { Result.Success(createRetrieveProcess(status = "finished")) }
+    uploadFileResult: suspend () -> Result<UploadFileResponse, Error> = { Result.Success(createUploadFileResponse()) },
+    retrieveProcessResult: suspend () -> Result<RetrieveProcessResponse, Error> =
+        { Result.Success(createRetrieveProcessResponse(status = "finished")) }
 ): Lokalise = object : FakeLokalise() {
     override suspend fun uploadFile(
         projectId: String,
-        data: String,
-        filename: String,
-        langIso: String,
-        bodyParams: Map<String, Any>
-    ): Result<FileUpload, Error> = uploadFileResult()
+        requestBody: UploadFileRequest,
+    ): Result<UploadFileResponse, Error> = uploadFileResult()
 
     override suspend fun retrieveProcess(
         projectId: String,
         processId: String
-    ): Result<RetrievedProcess, Error> = retrieveProcessResult()
+    ): Result<RetrieveProcessResponse, Error> = retrieveProcessResult()
 }
 
 private open class FakeLokalise : Lokalise {
-    override suspend fun retrieveProject(projectId: String): Result<Project, Error> {
+    override suspend fun retrieveProject(projectId: String): Result<RetrieveProjectResponse, Error> {
         error("Not overriden")
     }
 
-    override suspend fun allProjects(queryParams: Map<String, Any>): Result<Projects, Error> {
+    override suspend fun allProjects(params: AllProjectsRequest?): Result<AllProjectsResponse, Error> {
         error("Not overriden")
     }
 
     override suspend fun downloadFiles(
         projectId: String,
-        format: String,
-        bodyParams: Map<String, Any>
-    ): Result<FileDownload, Error> {
+        requestBody: DownloadFilesRequest,
+    ): Result<DownloadFilesResponse, Error> {
         error("Not overriden")
     }
 
     override suspend fun downloadFilesAsync(
         projectId: String,
-        format: String,
-        bodyParams: Map<String, Any>
-    ): Result<FileDownloadAsync, Error> {
+        requestBody: DownloadFilesRequest,
+    ): Result<DownloadFilesAsyncResponse, Error> {
         error("Not overriden")
     }
 
-    override suspend fun retrieveProcess(projectId: String, processId: String): Result<RetrievedProcess, Error> {
+    override suspend fun retrieveProcess(projectId: String, processId: String): Result<RetrieveProcessResponse, Error> {
         error("Not overriden")
     }
 
     override suspend fun uploadFile(
         projectId: String,
-        data: String,
-        filename: String,
-        langIso: String,
-        bodyParams: Map<String, Any>
-    ): Result<FileUpload, Error> {
+        requestBody: UploadFileRequest,
+    ): Result<UploadFileResponse, Error> {
         error("Not overriden")
     }
 }

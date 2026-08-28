@@ -1,5 +1,7 @@
 package com.ioki.lokalise.gradle.plugin
 
+import com.ioki.lokalise.api.models.DownloadFilesRequest
+import com.ioki.lokalise.api.models.UploadFileRequest
 import org.gradle.api.Action
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectContainer
@@ -44,23 +46,29 @@ abstract class LokaliseExtension(
 
 abstract class DownloadStringsConfig(
     private val name: String,
-) : Named, Parameter {
+) : Named {
     /**
      * Checks if all translations are done.
      * If set to true and translations are not done, the task will fail.
      */
     abstract val checkTranslationProcess: Property<Boolean>
 
+    /**
+     * The request body used for downloading translations.
+     * See also the [Lokalise API documentation "Download files"](https://developers.lokalise.com/reference/download-files).
+     */
+    abstract val requestBody: Property<DownloadFilesRequest>
+
     override fun getName(): String = name
 }
 
-abstract class UploadStringsConfig @Inject constructor(objects: ObjectFactory) : Parameter {
+abstract class UploadStringsConfig @Inject constructor(objects: ObjectFactory) {
     val translationsFilesToUpload: Property<ConfigurableFileTree> = objects.property(ConfigurableFileTree::class.java)
-}
 
-interface Parameter {
-    var params: Map<String, Any>
-    fun params(vararg params: Pair<String, Any>) {
-        this.params = params.toMap()
-    }
+    /**
+     * The request body used for uploading translations.
+     * The `data` and `filename` fields are ignored/overwritten per uploaded file, so they can be left empty.
+     * See also the [Lokalise API documentation "Upload a file"](https://developers.lokalise.com/reference/upload-a-file).
+     */
+    abstract val requestBody: Property<UploadFileRequest>
 }

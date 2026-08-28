@@ -92,7 +92,7 @@ class CheckEverythingTranslatedTaskTest {
             """
             import com.ioki.lokalise.gradle.plugin.tasks.CheckEverythingTranslatedTask
             import com.ioki.lokalise.gradle.plugin.*
-            import com.ioki.lokalise.api.models.Project as LokaliseProject
+            import com.ioki.lokalise.api.models.RetrieveProjectResponse as LokaliseProject
                     
             plugins {
                 id("com.ioki.lokalise")
@@ -125,7 +125,7 @@ class CheckEverythingTranslatedTaskTest {
             """
             import com.ioki.lokalise.gradle.plugin.tasks.CheckEverythingTranslatedTask
             import com.ioki.lokalise.gradle.plugin.*
-            import com.ioki.lokalise.api.models.Project as LokaliseProject
+            import com.ioki.lokalise.api.models.RetrieveProjectResponse as LokaliseProject
                     
             plugins {
                 id("com.ioki.lokalise")

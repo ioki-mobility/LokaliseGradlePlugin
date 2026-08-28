@@ -54,7 +54,7 @@ class LokaliseGradlePluginPublishingTest {
     fun `consuming of plugin publication via mavenLocal works`() {
         val newBuildFile = buildGradle.readText().replace(
             oldValue = """id("com.ioki.lokalise")""",
-            newValue = """id("com.ioki.lokalise") version "3.0.0""""
+            newValue = """id("com.ioki.lokalise") version "3.1.0-SNAPSHOT""""
         )
         buildGradle.writeText(newBuildFile)
 

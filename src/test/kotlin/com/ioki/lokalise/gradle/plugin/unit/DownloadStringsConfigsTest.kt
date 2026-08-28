@@ -34,30 +34,26 @@ class DownloadStringsConfigsTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 downloadStringsConfigs {
                     register("library") {
-                        params(
-                            "--format" to "xml",
-                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
-                            "--export-empty-as" to "skip",
-                            "--include-description" to false,
-                            "--export-sort" to "first_added",
-                            "--directory-prefix" to ".",
-                            "--filter-filenames" to listOf("./src/main/res/values-%LANG_ISO%/strings.xml"),
-                            "--indentation" to "4sp",
-                            "--replace-breaks" to "false"
-                        )   
+                        format.set("xml")
+                        filterLangs.set(listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"))
+                        exportEmptyAs.set("skip")
+                        includeDescription.set(false)
+                        exportSort.set("first_added")
+                        directoryPrefix.set(".")
+                        filterFilenames.set(listOf("./src/main/res/values-%LANG_ISO%/strings.xml"))
+                        indentation.set("4sp")
+                        replaceBreaks.set(false)
                     }
                     register("flavor") {
-                        params(
-                            "--format" to "xml",
-                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
-                            "--export-empty-as" to "skip",
-                            "--include-description" to false,
-                            "--export-sort" to "first_added",
-                            "--directory-prefix" to ".",
-                            "--filter-filenames" to listOf("./src/${"$"}{findProperty("flavor")}/res/values-%LANG_ISO%/strings.xml"),
-                            "--indentation" to "4sp",
-                            "--replace-breaks" to "false"
-                        )   
+                        format.set("xml")
+                        filterLangs.set(listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"))
+                        exportEmptyAs.set("skip")
+                        includeDescription.set(false)
+                        exportSort.set("first_added")
+                        directoryPrefix.set(".")
+                        filterFilenames.set(listOf("./src/${"$"}{findProperty("flavor")}/res/values-%LANG_ISO%/strings.xml"))
+                        indentation.set("4sp")
+                        replaceBreaks.set(false)
                     }
                 }
             }

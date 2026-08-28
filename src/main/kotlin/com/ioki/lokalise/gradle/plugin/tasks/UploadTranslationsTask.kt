@@ -1,6 +1,7 @@
 package com.ioki.lokalise.gradle.plugin.tasks
 
-import com.ioki.lokalise.api.models.FileUpload
+import com.ioki.lokalise.api.models.UploadFileRequest
+import com.ioki.lokalise.api.models.UploadFileResponse
 import com.ioki.lokalise.gradle.plugin.FileInfo
 import com.ioki.lokalise.gradle.plugin.LokaliseApiFactory
 import com.ioki.lokalise.gradle.plugin.LokaliseExtension
@@ -9,10 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.logging.LogLevel
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -35,7 +34,7 @@ abstract class UploadTranslationsTask : DefaultTask() {
     abstract val translationFilesToUpload: Property<ConfigurableFileTree>
 
     @get:Input
-    abstract val params: MapProperty<String, Any>
+    abstract val requestBody: Property<UploadFileRequest>
 
     @TaskAction
     fun f() {
@@ -46,13 +45,13 @@ abstract class UploadTranslationsTask : DefaultTask() {
                 .also {
                     logger.log(
                         LogLevel.INFO,
-                        "Execute uploading file with the following params:\n" +
-                            "${params.get()}\n" +
+                        "Execute uploading file with the following request body:\n" +
+                            "${requestBody.get()}\n" +
                             "and the following file info:\n" +
                             "$it"
                     )
                 }
-                .uploadEach(lokaliseApi, params.get("lang_iso").toString(), params.remove("lang_iso"))
+                .uploadEach(lokaliseApi, requestBody.get())
                 .run { if (pollUploadProcess.get()) checkProcess(lokaliseApi) }
         }
     }
@@ -66,13 +65,12 @@ abstract class UploadTranslationsTask : DefaultTask() {
 
     private suspend fun List<FileInfo>.uploadEach(
         lokaliseApi: LokaliseUploadApi,
-        langIso: String,
-        params: Map<String, Any>,
-    ): List<FileUpload> = withContext(Dispatchers.IO) {
-        lokaliseApi.uploadFiles(this@uploadEach, langIso, params)
+        requestBody: UploadFileRequest,
+    ): List<UploadFileResponse> = withContext(Dispatchers.IO) {
+        lokaliseApi.uploadFiles(this@uploadEach, requestBody)
     }
 
-    private suspend fun List<FileUpload>.checkProcess(lokaliseApi: LokaliseUploadApi) = withContext(Dispatchers.IO) {
+    private suspend fun List<UploadFileResponse>.checkProcess(lokaliseApi: LokaliseUploadApi) = withContext(Dispatchers.IO) {
         lokaliseApi.checkProcess(this@checkProcess)
     }
 }
@@ -84,13 +82,7 @@ internal fun TaskContainer.registerUploadTranslationTask(
     it.lokaliseApiFactory.set(lokaliseApiFactory::createUploadApi)
     it.translationFilesToUpload.set(lokaliseExtensions.uploadStringsConfig.translationsFilesToUpload)
     it.pollUploadProcess.set(lokaliseExtensions.pollUploadProcess)
-    it.params.set(lokaliseExtensions.uploadStringsConfig.params)
+    it.requestBody.set(it.project.provider { lokaliseExtensions.uploadStringsConfig.toRequestBody() })
     it.group = "Lokalise"
     it.description = "Upload translations to Lokalise"
 }
-
-private fun MapProperty<String, Any>.get(key: String): Any =
-    get().getOrElse(key) { throw GradleException("Value for key(=$key) not found") }
-
-private fun MapProperty<String, Any>.remove(key: String): Map<String, Any> =
-    get().toMutableMap().apply { remove(key) }

@@ -30,16 +30,12 @@ class DownloadAllTranslationsTaskTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 downloadStringsConfigs {
                     register("main") {
-                        params(
-                            "--format" to "xml",
-                            "--filter-langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
-                        )
+                        format.set("xml")
+                        filterLangs.set(listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"))
                     }
                     register("spanishOnly") {
-                        params(
-                            "--format" to "xml",
-                            "--filter-langs" to listOf("es"),
-                        )
+                        format.set("xml")
+                        filterLangs.set(listOf("es"))
                     }
                 }
             }

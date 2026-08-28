@@ -35,17 +35,15 @@ class DownloadTranslationsTaskTest {
                 projectId.set("AW3S0ME-PR0J3C7-1D")
                 downloadStringsConfigs {
                     register("library") {
-                        params(
-                            "format" to "xml",
-                            "filter_langs" to listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"),
-                            "export_empty_as" to "skip",
-                            "include_description" to "false",
-                            "export_sort" to "first_added",
-                            "directory_prefix" to ".",
-                            "filter_filenames" to listOf("./src/main/res/values-%LANG_ISO%/strings.xml"),
-                            "indentation" to "4sp",
-                            "replace_breaks" to false
-                        )   
+                        format.set("xml")
+                        filterLangs.set(listOf("en","de","de_CH","fr_CH","es","it","nl","ca","ar"))
+                        exportEmptyAs.set("skip")
+                        includeDescription.set(false)
+                        exportSort.set("first_added")
+                        directoryPrefix.set(".")
+                        filterFilenames.set(listOf("./src/main/res/values-%LANG_ISO%/strings.xml"))
+                        indentation.set("4sp")
+                        replaceBreaks.set(false)
                     }
                 }
             }

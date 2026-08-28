@@ -43,18 +43,18 @@ val filesToUpload = provider {
 lokalise {
     uploadStringsConfig {
         translationsFilesToUpload.set(filesToUpload)
-        params = mapOf(
-          "replace_modified" to true,
-          "cleanup_mode" to true,
-          "distinguish_by_file" to true,
-          "lang_iso" to "en_BZ",
-        )
+        langIso.set("en_BZ")
+        replaceModified.set(true)
+        cleanupMode.set(true)
+        distinguishByFile.set(true)
     }    
 }
 ```
 
 The plugin provides a `uploadTranslations` task that uses the configuration you upload the given translation files.
-Which parameter you can use can be found in the [Lokalise API documentation "Upload a file"](https://developers.lokalise.com/reference/upload-a-file).
+Each property of `uploadStringsConfig` (besides `translationsFilesToUpload`) mirrors a field of the underlying
+`kmp-lokalise-api` library's `UploadFileRequest`. Which fields you can set (and what they do) can be found in the
+[Lokalise API documentation "Upload a file"](https://developers.lokalise.com/reference/upload-a-file).
 
 #### Download configuration
 
@@ -64,10 +64,8 @@ Be note that, in contrast to the upload config, you can create multiple download
 lokalise {
     downloadStringsConfigs {
         register("main") {
-            arguments = listOf(
-                "--format", "xml",
-                "--filter-langs", "en,de,de_CH,fr_CH,es,it,nl,ca,ar",
-            )
+            format.set("xml")
+            filterLangs.set(listOf("en", "de", "de_CH", "fr_CH", "es", "it", "nl", "ca", "ar"))
         }
     }
 }
@@ -75,7 +73,9 @@ lokalise {
 
 The `lokalise.downloadStringsConfigs` function is a [NamedDomainObjectContainer](https://docs.gradle.org/8.1.1/javadoc/org/gradle/api/NamedDomainObjectContainer.html) that
 configured a `DownloadStringsConfig`.
-Which parameter you can use can be found in the [Lokalise API documentation "Download files"](https://developers.lokalise.com/reference/download-files).
+Each property of a `DownloadStringsConfig` mirrors a field of the underlying `kmp-lokalise-api` library's
+`DownloadFilesRequest`. Which fields you can set (and what they do) can be found in the
+[Lokalise API documentation "Download files"](https://developers.lokalise.com/reference/download-files).
 Each of the created configurations will create a Gradle tasks named like the following:
 ```
 downloadTranslationsFor[name]
@@ -88,16 +88,12 @@ For example, if you only want to download spanish strings you can do this:
 ```kotlin
 downloadStringsConfigs {
     register("main") {
-        arguments = listOf(
-            "--format", "xml",
-            "--filter-langs", "en,de,de_CH,fr_CH,es,it,nl,ca,ar",
-        )
+        format.set("xml")
+        filterLangs.set(listOf("en", "de", "de_CH", "fr_CH", "es", "it", "nl", "ca", "ar"))
     }
     register("spanishOnly") {
-        arguments = listOf(
-            "--format", "xml",
-            "--filter-langs", "es",
-        )
+        format.set("xml")
+        filterLangs.set(listOf("es"))
     }
 }
 

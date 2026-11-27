@@ -57,10 +57,7 @@ internal abstract class DownloadTranslationsTask : DefaultTask() {
         }
         val bundleUrl = downloadedFile.bundleUrl
 
-        val outputZipFile = projectLayout.buildDirectory.file("lokalise/translations.zip")
-            .get()
-            .asFile
-            .apply { parentFile.mkdirs() }
+        val outputZipFile = temporaryDir.resolve("translations.zip")
         URL(bundleUrl).openStream().use {
             Files.copy(it, outputZipFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }

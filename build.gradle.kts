@@ -40,7 +40,7 @@ val dokkaJar = tasks.register<Jar>("dokkaJar") {
     archiveClassifier.set("javadoc")
 }
 
-version = "3.1.0-SNAPSHOT"
+version = "3.1.0"
 group = "com.ioki.lokalise"
 publishing {
     publications {
